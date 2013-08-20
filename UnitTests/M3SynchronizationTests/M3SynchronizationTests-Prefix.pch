@@ -1,0 +1,8 @@
+//
+// Prefix header for all source files of the 'M3SynchronizationTests' target in the 'M3SynchronizationTests' project
+//
+
+#ifdef __OBJC__
+    #import <UIKit/UIKit.h>
+    #import <Foundation/Foundation.h>
+#endif

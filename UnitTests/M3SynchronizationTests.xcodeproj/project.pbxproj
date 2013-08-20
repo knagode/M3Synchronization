@@ -1,0 +1,373 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AD7B94E317C3B8FC00768747 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD7B94E217C3B8FC00768747 /* SenTestingKit.framework */; };
+		AD7B94ED17C3B8FC00768747 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = AD7B94EB17C3B8FC00768747 /* InfoPlist.strings */; };
+		AD7B94F017C3B8FC00768747 /* M3SynchronizationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AD7B94EF17C3B8FC00768747 /* M3SynchronizationTests.m */; };
+		AD7B94F917C3BA3F00768747 /* Car.m in Sources */ = {isa = PBXBuildFile; fileRef = AD7B94F717C3BA3F00768747 /* Car.m */; };
+		AD7B94FA17C3BA3F00768747 /* syncSpecifications.json in Resources */ = {isa = PBXBuildFile; fileRef = AD7B94F817C3BA3F00768747 /* syncSpecifications.json */; };
+		AD7B94FD17C3BAEE00768747 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD7B94FB17C3BAEE00768747 /* CoreData.framework */; };
+		AD7B94FE17C3BAEE00768747 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD7B94FC17C3BAEE00768747 /* CoreFoundation.framework */; };
+		AD7B950317C3BB9100768747 /* M3Synchronization.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = AD7B94FF17C3BB9100768747 /* M3Synchronization.xcdatamodeld */; };
+		AD7B950417C3BB9100768747 /* PotniStroski.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = AD7B950117C3BB9100768747 /* PotniStroski.xcdatamodeld */; };
+		AD7B950617C3BECF00768747 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD7B950517C3BECF00768747 /* Foundation.framework */; };
+		AD7B950817C3BEDF00768747 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD7B950717C3BEDF00768747 /* UIKit.framework */; };
+		AD7B951117C3C17000768747 /* M3Synchronization.m in Sources */ = {isa = PBXBuildFile; fileRef = AD7B94D717C3B82500768747 /* M3Synchronization.m */; };
+		AD7B951317C3C17000768747 /* NSManagedObject+markAsDirty.m in Sources */ = {isa = PBXBuildFile; fileRef = AD7B94D917C3B82500768747 /* NSManagedObject+markAsDirty.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		AD7B94D617C3B82500768747 /* M3Synchronization.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = M3Synchronization.h; sourceTree = "<group>"; };
+		AD7B94D717C3B82500768747 /* M3Synchronization.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = M3Synchronization.m; sourceTree = "<group>"; };
+		AD7B94D817C3B82500768747 /* NSManagedObject+markAsDirty.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSManagedObject+markAsDirty.h"; sourceTree = "<group>"; };
+		AD7B94D917C3B82500768747 /* NSManagedObject+markAsDirty.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObject+markAsDirty.m"; sourceTree = "<group>"; };
+		AD7B94DF17C3B8FB00768747 /* M3SynchronizationTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = M3SynchronizationTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AD7B94E217C3B8FC00768747 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		AD7B94E417C3B8FC00768747 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		AD7B94E617C3B8FC00768747 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		AD7B94EA17C3B8FC00768747 /* M3SynchronizationTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "M3SynchronizationTests-Info.plist"; sourceTree = "<group>"; };
+		AD7B94EC17C3B8FC00768747 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		AD7B94EE17C3B8FC00768747 /* M3SynchronizationTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = M3SynchronizationTests.h; sourceTree = "<group>"; };
+		AD7B94EF17C3B8FC00768747 /* M3SynchronizationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = M3SynchronizationTests.m; sourceTree = "<group>"; };
+		AD7B94F117C3B8FC00768747 /* M3SynchronizationTests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "M3SynchronizationTests-Prefix.pch"; sourceTree = "<group>"; };
+		AD7B94F617C3BA3F00768747 /* Car.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Car.h; sourceTree = "<group>"; };
+		AD7B94F717C3BA3F00768747 /* Car.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Car.m; sourceTree = "<group>"; };
+		AD7B94F817C3BA3F00768747 /* syncSpecifications.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = syncSpecifications.json; sourceTree = "<group>"; };
+		AD7B94FB17C3BAEE00768747 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/CoreData.framework; sourceTree = DEVELOPER_DIR; };
+		AD7B94FC17C3BAEE00768747 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/CoreFoundation.framework; sourceTree = DEVELOPER_DIR; };
+		AD7B950017C3BB9100768747 /* M3Synchronization.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = M3Synchronization.xcdatamodel; sourceTree = "<group>"; };
+		AD7B950217C3BB9100768747 /* PotniStroski.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = PotniStroski.xcdatamodel; sourceTree = "<group>"; };
+		AD7B950517C3BECF00768747 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		AD7B950717C3BEDF00768747 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AD7B94DB17C3B8FB00768747 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AD7B950817C3BEDF00768747 /* UIKit.framework in Frameworks */,
+				AD7B950617C3BECF00768747 /* Foundation.framework in Frameworks */,
+				AD7B94FE17C3BAEE00768747 /* CoreFoundation.framework in Frameworks */,
+				AD7B94FD17C3BAEE00768747 /* CoreData.framework in Frameworks */,
+				AD7B94E317C3B8FC00768747 /* SenTestingKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AD7B94CE17C3B80800768747 = {
+			isa = PBXGroup;
+			children = (
+				AD7B950717C3BEDF00768747 /* UIKit.framework */,
+				AD7B950517C3BECF00768747 /* Foundation.framework */,
+				AD7B94FB17C3BAEE00768747 /* CoreData.framework */,
+				AD7B94FC17C3BAEE00768747 /* CoreFoundation.framework */,
+				AD7B94E817C3B8FC00768747 /* M3SynchronizationTests */,
+				AD7B94E117C3B8FC00768747 /* Frameworks */,
+				AD7B94E017C3B8FB00768747 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AD7B94D517C3B82500768747 /* M3Synchronization */ = {
+			isa = PBXGroup;
+			children = (
+				AD7B94D617C3B82500768747 /* M3Synchronization.h */,
+				AD7B94D717C3B82500768747 /* M3Synchronization.m */,
+				AD7B94D817C3B82500768747 /* NSManagedObject+markAsDirty.h */,
+				AD7B94D917C3B82500768747 /* NSManagedObject+markAsDirty.m */,
+			);
+			name = M3Synchronization;
+			path = ../../M3Synchronization;
+			sourceTree = "<group>";
+		};
+		AD7B94E017C3B8FB00768747 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AD7B94DF17C3B8FB00768747 /* M3SynchronizationTests.octest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AD7B94E117C3B8FC00768747 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				AD7B94E217C3B8FC00768747 /* SenTestingKit.framework */,
+				AD7B94E417C3B8FC00768747 /* UIKit.framework */,
+				AD7B94E617C3B8FC00768747 /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		AD7B94E817C3B8FC00768747 /* M3SynchronizationTests */ = {
+			isa = PBXGroup;
+			children = (
+				AD7B94FF17C3BB9100768747 /* M3Synchronization.xcdatamodeld */,
+				AD7B950117C3BB9100768747 /* PotniStroski.xcdatamodeld */,
+				AD7B94F617C3BA3F00768747 /* Car.h */,
+				AD7B94F717C3BA3F00768747 /* Car.m */,
+				AD7B94F817C3BA3F00768747 /* syncSpecifications.json */,
+				AD7B94EE17C3B8FC00768747 /* M3SynchronizationTests.h */,
+				AD7B94EF17C3B8FC00768747 /* M3SynchronizationTests.m */,
+				AD7B94F517C3B9C400768747 /* Libraries */,
+				AD7B94E917C3B8FC00768747 /* Supporting Files */,
+			);
+			path = M3SynchronizationTests;
+			sourceTree = "<group>";
+		};
+		AD7B94E917C3B8FC00768747 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				AD7B94EA17C3B8FC00768747 /* M3SynchronizationTests-Info.plist */,
+				AD7B94EB17C3B8FC00768747 /* InfoPlist.strings */,
+				AD7B94F117C3B8FC00768747 /* M3SynchronizationTests-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		AD7B94F517C3B9C400768747 /* Libraries */ = {
+			isa = PBXGroup;
+			children = (
+				AD7B94D517C3B82500768747 /* M3Synchronization */,
+			);
+			name = Libraries;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AD7B94DE17C3B8FB00768747 /* M3SynchronizationTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AD7B94F217C3B8FC00768747 /* Build configuration list for PBXNativeTarget "M3SynchronizationTests" */;
+			buildPhases = (
+				AD7B94DA17C3B8FB00768747 /* Sources */,
+				AD7B94DB17C3B8FB00768747 /* Frameworks */,
+				AD7B94DC17C3B8FB00768747 /* Resources */,
+				AD7B94DD17C3B8FB00768747 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = M3SynchronizationTests;
+			productName = M3SynchronizationTests;
+			productReference = AD7B94DF17C3B8FB00768747 /* M3SynchronizationTests.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AD7B94CF17C3B80800768747 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+			};
+			buildConfigurationList = AD7B94D217C3B80800768747 /* Build configuration list for PBXProject "M3SynchronizationTests" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = AD7B94CE17C3B80800768747;
+			productRefGroup = AD7B94E017C3B8FB00768747 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AD7B94DE17C3B8FB00768747 /* M3SynchronizationTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AD7B94DC17C3B8FB00768747 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AD7B94ED17C3B8FC00768747 /* InfoPlist.strings in Resources */,
+				AD7B94FA17C3BA3F00768747 /* syncSpecifications.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		AD7B94DD17C3B8FB00768747 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AD7B94DA17C3B8FB00768747 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AD7B951117C3C17000768747 /* M3Synchronization.m in Sources */,
+				AD7B951317C3C17000768747 /* NSManagedObject+markAsDirty.m in Sources */,
+				AD7B94F017C3B8FC00768747 /* M3SynchronizationTests.m in Sources */,
+				AD7B94F917C3BA3F00768747 /* Car.m in Sources */,
+				AD7B950317C3BB9100768747 /* M3Synchronization.xcdatamodeld in Sources */,
+				AD7B950417C3BB9100768747 /* PotniStroski.xcdatamodeld in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		AD7B94EB17C3B8FC00768747 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				AD7B94EC17C3B8FC00768747 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		AD7B94D317C3B80800768747 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		AD7B94D417C3B80800768747 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		AD7B94F317C3B8FC00768747 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+				);
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "M3SynchronizationTests/M3SynchronizationTests-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = "M3SynchronizationTests/M3SynchronizationTests-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Debug;
+		};
+		AD7B94F417C3B8FC00768747 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+				);
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "M3SynchronizationTests/M3SynchronizationTests-Prefix.pch";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = "M3SynchronizationTests/M3SynchronizationTests-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AD7B94D217C3B80800768747 /* Build configuration list for PBXProject "M3SynchronizationTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AD7B94D317C3B80800768747 /* Debug */,
+				AD7B94D417C3B80800768747 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AD7B94F217C3B8FC00768747 /* Build configuration list for PBXNativeTarget "M3SynchronizationTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AD7B94F317C3B8FC00768747 /* Debug */,
+				AD7B94F417C3B8FC00768747 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		AD7B94FF17C3BB9100768747 /* M3Synchronization.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				AD7B950017C3BB9100768747 /* M3Synchronization.xcdatamodel */,
+			);
+			currentVersion = AD7B950017C3BB9100768747 /* M3Synchronization.xcdatamodel */;
+			path = M3Synchronization.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+		AD7B950117C3BB9100768747 /* PotniStroski.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				AD7B950217C3BB9100768747 /* PotniStroski.xcdatamodel */,
+			);
+			currentVersion = AD7B950217C3BB9100768747 /* PotniStroski.xcdatamodel */;
+			path = PotniStroski.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = AD7B94CF17C3B80800768747 /* Project object */;
+}

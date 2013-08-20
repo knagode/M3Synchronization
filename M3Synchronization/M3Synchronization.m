@@ -1,0 +1,654 @@
+    //
+//  SynchronizationEntity.m
+//  travelExpenses
+//
+//  Created by Klemen Nagode on 3/4/13.
+//  Copyright (c) 2013 Mice3. All rights reserved.
+//
+
+#import "M3Synchronization.h"
+#import "AFHTTPClient.h"
+#import "AFHTTPRequestOperation.h"
+#import "AppDelegate.h"
+
+
+#define kSynchronizationEntityOutputCommunication 1
+
+@interface M3Synchronization(){}
+
+@property (nonatomic) int currentSyncIndex;
+
+@property (nonatomic, strong) NSMutableArray * itemsToSync;
+@property (nonatomic) BOOL isSyncing;
+@property (nonatomic, weak) NSManagedObjectContext * context;
+@property (nonatomic, copy) NSString * serverUrl;
+@property (nonatomic, copy) NSString * serverReceiverScript;
+@property (nonatomic, copy) NSString * serverFetcherScript;
+
+@end
+
+@implementation M3Synchronization
+
+static NSMutableDictionary *synchingTablesDictionary;
+
+
++(NSMutableDictionary *) getSynchingTableDictionary
+{
+    if (synchingTablesDictionary == nil) {
+        synchingTablesDictionary = [NSMutableDictionary dictionaryWithCapacity:3];
+    }
+    return synchingTablesDictionary;
+}
+
+//-(id) initForClass: (NSString *) className{
+//    return [self initForClass:className andContext:nil andServerUrl:nil];
+//}
+
+
+-(id)               initForClass: (NSString *) className
+                      andContext: (NSManagedObjectContext *) context
+                    andServerUrl: (NSString *) serverUrl
+     andServerReceiverScriptName: (NSString *) serverReceiverScript
+      andServerFetcherScriptName: (NSString *) serverFetcherScript
+    andJsonSpecificationFileName: (NSString *) jsonFileName
+{
+    if(self = [self init]){
+        
+        if (!jsonFileName) {
+            jsonFileName = @"syncSpecifications";
+        }
+        
+        if (!serverReceiverScript) {
+            serverReceiverScript = @"/mobile_scripts/getLastChangesDynamic.php?class=%@";
+        }
+        
+        if (!serverFetcherScript) {
+            serverFetcherScript = @"/mobile_scripts/syncDynamic.php?class=%@";
+        }
+        
+        if (!serverUrl) {
+            serverUrl = @"http://synctest.talcho.com";
+        }
+        
+        
+        NSDictionary *json = [self getJsonFromFile:jsonFileName];
+        
+        self.className = className;
+        self.classSettings = [json objectForKey:className];
+                
+        self.context = context;
+        
+        self.serverUrl = serverUrl;
+        self.serverFetcherScript = serverFetcherScript;
+        self.serverReceiverScript = serverReceiverScript;
+        
+    }
+    return self;
+}
+
+-(id) getJsonFromFile: (NSString *) file
+{
+    NSError *error;
+    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+    
+    NSString *filePath = [bundle pathForResource:@"syncSpecifications" ofType:@"json"];
+    NSString *jsonString = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:&error];
+    
+    if(error) {
+        NSLog(@"%@", error);
+    }
+    
+    
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *results = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error];
+    
+    if(error) {
+        NSLog(@"%@", error);
+    }
+    
+    return results;
+}
+
+
+-(BOOL) isActivated {
+    
+    BOOL isActivated = [[NSUserDefaults standardUserDefaults] boolForKey:@"isActivated"];
+    return isActivated;
+}
+
+-(void) sync {
+    // todo
+    
+    if (![self isActivated]) {
+      
+        if([[self.classSettings objectForKey:@"authenticationType"] isEqualToString:@"deviceId"]) {
+            // we allow syncing even if user has not yet activated account
+            if([[NSUserDefaults standardUserDefaults] integerForKey:@"userDeviceId"] < 1) {
+                return; // we require that device has been registrated (email was set but not yet activated
+            }
+        } else if([[self.classSettings objectForKey:@"authenticationType"] isEqualToString:@"userId"]) {
+            self.isSyncing = NO;
+            [self.delegate onSynchronizationError:self];
+            return; // do not sync device is not activated
+        }
+        
+    }
+    
+    
+    
+    if(!self.isSyncing) {
+        if ([[M3Synchronization getSynchingTableDictionary] objectForKey:self.className] != nil) {
+            
+            [[M3Synchronization getSynchingTableDictionary] removeObjectForKey:self.className];
+            
+            self.isSyncing = NO;
+            [self.delegate onSynchronizationError:self];
+            // the table is already synching, do not synch again until the previous instance is done
+        } else {
+            [[M3Synchronization getSynchingTableDictionary] setObject:self.className forKey:self.className];
+            
+            self.isSyncing = YES;
+            
+            self.countItemsToSync = 0;
+            self.countModifiedItemsFromServer = 0;
+            self.currentSyncIndex = 0;
+
+            NSString * syncDirection = [self.classSettings valueForKey:@"syncDirection"];
+            if(syncDirection && [syncDirection isEqualToString:@"toServer"]) {
+                [self sendNewDataToServer]; // if we do not need to receive data to server just send new data to server
+            } else {
+                [self getModifiedDataFromServer]; // step 1, on success: merge => send new data do server
+            }
+            
+        }
+    }
+}
+
+-(int) lastSyncWithServerTimestamp
+{
+    int lastTimestamp = [[NSUserDefaults standardUserDefaults] integerForKey:[NSString stringWithFormat:@"lastTimestampFromServer_%@", self.className]];
+    
+    if(![self isActivated]) {
+        return 0; // until device is activated - we try to load all data from server - data with timestamp > 0
+    }
+    
+    return lastTimestamp;
+}
+
+-(void) updateServerTimestamp: (int) timestamp
+{
+    [[NSUserDefaults standardUserDefaults] setInteger:timestamp forKey:[NSString stringWithFormat:@"lastTimestampFromServer_%@", self.className]];
+}
+
+-(NSArray *) getEntitiesWithRemoteIdOrderedByTimestampModified: (int) remoteId
+{
+    
+    NSError * error;
+    
+    NSFetchRequest *request = [[NSFetchRequest alloc] init];
+    NSEntityDescription * entity = [NSEntityDescription entityForName:self.className inManagedObjectContext:self.context];
+    [request setEntity:entity];
+     
+    NSPredicate *predicate = [NSPredicate predicateWithFormat: [NSString stringWithFormat:@"remoteId = %d", remoteId]];
+    [request setPredicate:predicate];
+   
+    NSSortDescriptor* sortDescriptor = [[NSSortDescriptor alloc]
+                                        initWithKey:@"timestampModified" ascending:NO];
+    NSArray *sortDescriptors = [[NSArray alloc] initWithObjects: sortDescriptor, nil];
+    [request setSortDescriptors:sortDescriptors];
+    
+    
+    NSArray * array = [NSMutableArray arrayWithArray:[self.context executeFetchRequest:request error:&error]];
+    if(error) {
+        [self handleError:error andDescription:NSLocalizedString(@"CoreDataProblem", nil)];
+    }
+    
+    return array;
+}
+
+-(NSMutableDictionary *) getAdditionalPostParams
+{
+    if (!self.additionalPostParamsDictionary) {
+        return [NSMutableDictionary dictionary];
+    }
+    
+    return self.additionalPostParamsDictionary;
+}
+
+
+-(void) getModifiedDataFromServer {
+    
+    AFHTTPClient *client = [[AFHTTPClient alloc] initWithBaseURL: [NSURL URLWithString:self.serverUrl]];
+
+    NSMutableDictionary * postParams = [self getAdditionalPostParams];
+    
+    
+    if ([self lastSyncWithServerTimestamp]) {
+        [postParams setObject:[NSNumber numberWithInt:[self lastSyncWithServerTimestamp]] forKey:@"timestampLastSync"];
+    }
+    
+    
+    [client postPath:[NSString stringWithFormat:self.serverFetcherScript, self.className] parameters:postParams success:^(AFHTTPRequestOperation *operation, id responseObject) {
+
+        NSString *text = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+
+#if kSynchronizationEntityOutputCommunication
+        NSLog(@"response for class: %@: %@",self.className,  text);
+#endif
+        
+        
+        NSError * error;
+        NSDictionary * JSON = [NSJSONSerialization JSONObjectWithData: [text dataUsingEncoding:NSUTF8StringEncoding] options: NSJSONReadingMutableContainers
+                                                                error: &error];
+        
+        if(error) {
+//            UIAlertView *alert = [[UIAlertView alloc]initWithTitle: @"ERRORS ON SERVER"
+//                                                           message: text
+//                                                          delegate: nil
+//                                                 cancelButtonTitle:@"OK"
+//                                                 otherButtonTitles:nil];
+//            [alert show];
+//            
+//            self.isSyncing = NO;
+            
+            [self handleError:error andDescription:text];
+            
+            [self.delegate onSynchronizationError:self];
+            
+            return;
+        }
+        
+        
+        if(!error &&  ![[JSON objectForKey:@"hasError"] boolValue]) {
+            BOOL isActivated = [[NSUserDefaults standardUserDefaults] boolForKey:@"isActivated"];
+            if(!isActivated) {
+                [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"isActivated"];
+            }
+            
+            NSArray * items = [JSON objectForKey:@"items"];
+            
+            self.countModifiedItemsFromServer = [items count];
+            
+            NSDateFormatter *format = [[NSDateFormatter alloc] init];
+            [format setDateFormat:@"yyyy-MM-dd' 'HH:mm:ss"];
+            
+            for (NSDictionary * item in items) {
+                // check if we have item in local DB
+                
+                int remoteId = [[item objectForKey:@"remoteId"] intValue];
+                
+                // check for duplicates
+                NSString * predicateString = @"";
+                
+                
+                // check for unique fields
+                if([self.classSettings objectForKey:@"uniqueFields"]) {
+                    NSArray * fields = (NSArray *)[self.classSettings objectForKey:@"uniqueFields"];
+                    
+                    if ([fields count]) {
+                        // check for duplicates and delete them
+                        
+                        BOOL isFirst = YES;
+                        for(NSString * field in fields) {
+                            if(!isFirst) {
+                                predicateString = [predicateString stringByAppendingString:@" and "];
+                            }
+                            if([field rangeOfString:@"datetime"].location != NSNotFound) {
+                                // TODO: do this work?
+                                predicateString = [predicateString stringByAppendingFormat:@"%@ = '%@'", field, [format dateFromString:((NSString *)[item valueForKey:field])] ];
+                                
+                            } else {
+                                id value = [item valueForKey:field];
+                                if([value isKindOfClass:[NSString class]]) { // string
+                                    predicateString = [predicateString stringByAppendingFormat:@"%@ = '%@'", field, value];
+                                } else {  // number
+                                    predicateString = [predicateString stringByAppendingFormat:@"%@ = %d", field, (int) value];
+                                }
+                            }
+                            isFirst = NO;
+                        }
+                    }
+                }
+              
+                // end check of unique fields
+                if ([predicateString length] > 0) {
+                    predicateString = [NSString stringWithFormat:@"(%@) or", predicateString];
+                }
+                predicateString = [NSString stringWithFormat:@"%@ (remoteId=%d)", predicateString, remoteId];
+                
+                
+                // get local duplicates
+                NSFetchRequest *request = [[NSFetchRequest alloc] init];
+                NSEntityDescription * entityDescription = [NSEntityDescription entityForName:self.className inManagedObjectContext:self.context];
+                [request setEntity:entityDescription];
+                
+                NSPredicate *predicate = [NSPredicate predicateWithFormat:predicateString];
+                
+                NSSortDescriptor* sortDescriptor = [[NSSortDescriptor alloc]
+                                                    initWithKey:@"timestampModified" ascending:NO];
+                NSArray *sortDescriptors = [[NSArray alloc] initWithObjects: sortDescriptor, nil];
+                [request setSortDescriptors:sortDescriptors];
+                
+                [request setPredicate:predicate];
+                
+                NSArray * array = [NSMutableArray arrayWithArray:[self.context executeFetchRequest:request error:&error]];
+                if(error) {
+                    [self handleError:error andDescription:@"Core data problem"];
+                }
+
+                
+                id entity;
+                if ([array count] > 0) {
+                    
+                    // delete all duplicates - keep just the newes one (start with index i=1)
+                    for (int i=1; i < [array count]; i++) {
+                        [self.context deleteObject:[array objectAtIndex:i]];
+                    }
+                    
+                    entity = [array objectAtIndex:0];
+                    int entityTimestampModified =  [[entity valueForKey:@"timestampModified"] intValue];
+                    
+                    
+                    
+                    if(entityTimestampModified > [[item valueForKey:@"timestampModified"] intValue]) {
+                        // we have newer data on phone: do not override data
+                        continue;
+                    }
+                    
+                    // TODO: delete older objects
+                } else {
+                    // insert new data
+                    entity = [NSEntityDescription insertNewObjectForEntityForName:self.className inManagedObjectContext:self.context];
+                }
+
+                // necessary fields
+                [entity setValue:[NSNumber numberWithInt:[[item objectForKey:@"remoteId"] intValue]] forKey:@"remoteId"];
+                [entity setValue:[item valueForKey:@"timestampInserted"] forKey:@"timestampInserted"];
+                [entity setValue:[item valueForKey:@"timestampModified"] forKey:@"timestampModified"];
+                [entity setValue:[NSNumber numberWithBool:[[item objectForKey:@"isDeleted"] boolValue]] forKey:@"is_Deleted"];
+                [entity setValue: [NSNumber numberWithBool:NO] forKey:@"isDirty"];
+                
+                NSArray * fields = [self.classSettings valueForKey:@"fieldsToSyncBothWays"];
+
+                
+                for(NSString * field in fields) {
+                    if([field rangeOfString:@"datetime"].location != NSNotFound) {
+                        [entity setValue:[format dateFromString:((NSString *)[item valueForKey:field])] forKey:field]; // special operations
+                    } else {
+                        [entity setValue:[item valueForKey:field] forKey:field];
+                    }
+                }
+                
+
+                // TODO: do we need to save every cycle or can we save at the end?
+                [self.context save:nil]; // TODO: handle error
+
+                // perform action on NSManagedObjectEntity it it has afterUpdate method (PHP Doctrine style)
+                SEL selector = NSSelectorFromString(@"afterUpdate");
+                if([entity respondsToSelector:selector]) {
+                    [entity performSelector: selector];
+                }
+                
+                
+                [self afterUpdateFromServer:item andEntity:entity];
+                
+            }
+            
+            [self updateServerTimestamp:[[JSON valueForKey:@"timestampServer"] intValue]];
+            
+        } else {
+           
+            if([JSON objectForKey:@"status"] && [[JSON objectForKey:@"status"] isEqualToString:@"deviceNotActivated"]) {
+                // todo: what should we do if device is not activated?
+                // most likely nothing -> or send notification and suggest user to login
+            } else {
+
+                [self handleError:nil andDescription:[JSON objectForKey:@"errorMessage"]];
+            }
+        }
+
+        [self sendNewDataToServer];
+        
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"%@", [error localizedDescription]);
+        [self handleError:error andDescription:nil];
+    }];
+}
+
+
+
+-(void) sendNextNewDataToServer {
+    
+    if([self.itemsToSync count] == 0) {
+        
+        //[[SynchronizationManager sharedManager].synchingTablesDictionary removeObjectForKey:self.className];
+        
+        [[M3Synchronization getSynchingTableDictionary] removeObjectForKey:self.className];
+        
+        if ([self.delegate respondsToSelector:@selector(onSynchronizationComplete:)]) {
+            self.isSyncing = NO;
+            [self.delegate onSynchronizationComplete:self];
+        }
+        
+    } else {
+        
+        self.currentSyncIndex++; // for use with messages like: Syncing 1 of 10 items
+        
+        NSDateFormatter *format = [[NSDateFormatter alloc] init];
+        [format setDateFormat:@"yyyy-MM-dd' 'HH:mm:ss"];
+        
+        id entity = [self.itemsToSync objectAtIndex:0];
+        [self.itemsToSync removeObjectAtIndex:0];
+        
+        NSMutableDictionary * entityDictionary = [NSMutableDictionary dictionaryWithCapacity:20];
+        
+        NSMutableArray * fields = [NSMutableArray arrayWithArray:[self.classSettings valueForKey:@"fieldsToSyncBothWays"]];
+        [fields addObject:@"timestampModified"];
+        [fields addObject:@"timestampInserted"];
+
+        
+        [entityDictionary setValue:[entity valueForKey:@"is_Deleted"] forKey:@"isDeleted"];
+        for (NSString * field in fields) {
+            
+            if ([field rangeOfString:@"datetime"].location != NSNotFound) {
+                [entityDictionary setValue:[format stringFromDate:[entity valueForKey:field]] forKey:field];
+            } else {
+                id newValue = [entity valueForKey:field];
+                if (newValue == nil) {
+                    [entityDictionary setValue:[NSNull null] forKey:field];
+                } else {
+                    [entityDictionary setValue:newValue forKey:field];
+                }
+            }
+        }
+        [self beforeSendToServer:entityDictionary andEntity:entity];
+        
+        NSMutableArray * multipartData = [entityDictionary objectForKey:@"multipartData"];
+        [entityDictionary removeObjectForKey:@"multipartData"];
+        
+        
+        NSString * jsonString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:entityDictionary options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
+        
+        
+        NSMutableDictionary *params = [self getAdditionalPostParams];
+        [params setObject:jsonString forKey:@"json"];
+        
+        
+        // send remoteId if we send modified data back to server (isDirty flag=YES)
+        id remoteIdObj = [entity valueForKey:@"remoteId"];
+        if(remoteIdObj) { //
+            int remoteId = [((NSNumber *) remoteIdObj) intValue];
+            if (remoteId>0) {
+                [params setObject:((NSNumber *) remoteIdObj) forKey:@"remoteId"];
+            }
+            
+        }
+        
+
+        
+        AFHTTPClient *client = [[AFHTTPClient alloc] initWithBaseURL:
+                                [NSURL URLWithString:self.serverUrl]];
+        
+//        NSMutableURLRequest *request = [[AFHTTPClient sharedClient] multipartFormRequestWithMethod:@"POST" path:@"/upload.php" parameters:nil constructingBodyWithBlock: ^(id <AFMultipartFormData>formData) {
+//            [formData appendPartWithFileData:data mimeType:@"image/jpeg" name:@"attachment"];
+//        }];
+//        
+        NSURLRequest *postRequest = [client multipartFormRequestWithMethod:@"POST" path:[NSString stringWithFormat:self.serverReceiverScript, self.className] parameters: params constructingBodyWithBlock:^(id <AFMultipartFormData>formData){
+            int i=0;
+            for (NSData * data in multipartData) {
+                //[formData appendPartWithFileData:data mimeType:@"image/jpeg" name:@"attachment"];
+                [formData appendPartWithFileData:data name:[NSString stringWithFormat:@"%d", i] fileName:[NSString stringWithFormat:@"img_%i.png", i] mimeType:@"image/png"];
+                i++;
+            }
+            
+        }];
+        
+        
+        AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:postRequest];
+        
+        
+        [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
+            // Print the response body in text
+            
+            NSString *text = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+            
+            NSError *error;
+            NSDictionary *JSON = [NSJSONSerialization JSONObjectWithData: [text dataUsingEncoding:NSUTF8StringEncoding]
+                                                                 options: NSJSONReadingMutableContainers
+                                                                   error: &error];
+            
+            if(error) {
+                [self handleError:error andDescription:text];
+                [self.delegate onSynchronizationError:self];
+                return;
+            }
+            
+            
+            if([[JSON valueForKey:@"hasError"] boolValue] == YES) {
+                [self handleError:nil andDescription:[JSON valueForKey:@"errorMessage"]];
+            } else {
+                
+                int remoteId = [[JSON objectForKey:@"remoteId"] intValue];
+                // check if items with same remoteId already exists and delete them! We do not want duplicates
+               
+                [entity setValue:[NSNumber numberWithInt:remoteId] forKey:@"remoteId"];
+                [entity setValue:[NSNumber numberWithBool:NO] forKey:@"isDirty"]; // mark field as synced with server
+                
+      
+                [self.context save:nil];
+
+                SEL selector = NSSelectorFromString(@"afterUpdate");
+                if([entity respondsToSelector:selector]) {
+                    [entity performSelector: selector];
+
+                }
+                
+                // keep only newest row with newest datetime modified data
+                NSArray * array = [self getEntitiesWithRemoteIdOrderedByTimestampModified:remoteId];
+                if ([array count] > 1) {
+                    for(int i=1; i<[array count]; i++) {
+                        //if(![tmp isEqual: tmp]) { // leave only current entity, delete others
+                        [self.context deleteObject:[array objectAtIndex:i]];
+                        //}
+                    }
+                }
+               
+                
+                
+            }
+            
+            
+            [self updateServerTimestamp:[[JSON valueForKey:@"timestampServer"] intValue]];
+            
+            [self sendNextNewDataToServer];
+            
+        } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+            [self handleError:error andDescription:nil];
+        }];
+        
+        [client enqueueHTTPRequestOperation:operation];
+        
+    }
+    
+    
+}
+
+
+-(void) sendNewDataToServer {
+    
+    NSError * error;
+    
+    NSFetchRequest *request = [[NSFetchRequest alloc] init];
+    NSEntityDescription * entity = [NSEntityDescription entityForName:self.className inManagedObjectContext:self.context];
+    [request setEntity:entity];
+    
+    NSString * predicateString = @"remoteId < 1 or isDirty = YES";
+    
+    NSString * clientNewDataPredicate = [self.classSettings objectForKey:@"clientNewDataPredicate"];
+    if (clientNewDataPredicate) {
+        predicateString =  [NSString stringWithFormat:@"(%@) AND (%@)", predicateString, clientNewDataPredicate];
+    }
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:predicateString];
+    [request setPredicate:predicate];
+    
+    self.itemsToSync = [NSMutableArray arrayWithArray:[self.context executeFetchRequest:request error:&error]];
+    
+    if (error) {
+        [self handleError:error andDescription:nil];
+        
+        return;
+    }
+    
+    self.countItemsToSync = [self.itemsToSync count];
+    
+    [self sendNextNewDataToServer];
+}
+
+
+
+
+
+-(void) handleError: (NSError *) error andDescription: (NSString *) description
+{
+    NSLog(@"%@ %@", error.description, description);
+    
+    
+    self.isSyncing = NO;
+    
+    [self.itemsToSync removeAllObjects];
+    self.itemsToSync = nil;
+    
+    [self.delegate onSynchronizationError:self];
+    
+    [self onError:error andDescription:description];
+}
+
+
+
+/* code below should be updated for each framework - especially onError - we have to handle error somehow */
+-(void) beforeSendToServer: (NSMutableDictionary *) json
+                 andEntity: (id) entity {
+    // this method should be overriden if some object needs to modify JSON before send data to server
+}
+
+
+-(void) afterUpdateFromServer: (NSDictionary *) json
+                    andEntity: (id) entity {
+    // this method should be overriden if object needs special actionas after data is received from server
+}
+
+-(void) onError: (NSError *) error andDescription: (NSString *) description
+{
+    // this method should be overriden and do special actions - eg: loading UI hide
+}
+
+
+
+-(void) dealloc
+{
+    self.delegate = nil;
+}
+
+@end

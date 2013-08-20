@@ -1,0 +1,34 @@
+{
+	"Car": {
+ 		"authenticationType": "userId",
+	 	"fieldsToSyncBothWays":["licenceNumber","manufacturer","model"],
+	 	"uniqueFields":["licenceNumber"]
+ 	},
+ 	"AdditionalCostType": {
+ 		"authenticationType": "userId",
+	 	"fieldsToSyncBothWays":["title"],
+	 	"uniqueFields":["title"]
+ 	},
+ 	"RouteGroup": {
+		"authenticationType": "deviceId",
+		"serverAfterSave":"routeGroupAfterSave",
+		"clientNewDataPredicate": "datetimeStop != nil AND travelLocations != nil",
+		"uniqueFields":[],
+	 	"fieldsToSyncBothWays":["datetimeStart","datetimeStop", "priceTotal", "distanceTotal", "priceDistance", "priceAdditionalCosts", "travelReason", "travelLocations", "timeTotal", "pricePerDistanceUnit", "carLicenceNumber", "carManufacturer", "carModel"]
+ 	},
+ 	"TravelReason": {
+ 		"authenticationType": "userId",
+ 		"uniqueFields":["title"],
+	 	"fieldsToSyncBothWays":["title"]
+ 	},
+    "RepositoryItem": {
+ 		"authenticationType": "userId",
+ 		"uniqueFields":["uniqueKey"],
+	 	"fieldsToSyncBothWays":["uniqueKey", "value"]
+ 	},
+	"Ride": {
+ 		"authenticationType": "userId",
+ 		"uniqueFields":["datetime"],
+	 	"fieldsToSyncBothWays":["datetime", "distance", "timeInterval"]
+ 	}
+}
