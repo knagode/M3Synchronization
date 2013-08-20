@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-//#import "NSManagedObject+markAsDirty.h"
+#import "NSManagedObject+markAsDirty.h"
 
 @protocol SynchronizationEntityEventHandler <NSObject>
 

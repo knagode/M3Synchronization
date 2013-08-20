@@ -9,7 +9,6 @@
 #import "M3Synchronization.h"
 #import "AFHTTPClient.h"
 #import "AFHTTPRequestOperation.h"
-#import "AppDelegate.h"
 
 
 #define kSynchronizationEntityOutputCommunication 1
@@ -105,6 +104,8 @@ static NSMutableDictionary *synchingTablesDictionary;
     if(error) {
         NSLog(@"%@", error);
     }
+    
+    //NSLog(@"%@", results);
     
     return results;
 }
@@ -227,6 +228,7 @@ static NSMutableDictionary *synchingTablesDictionary;
         [postParams setObject:[NSNumber numberWithInt:[self lastSyncWithServerTimestamp]] forKey:@"timestampLastSync"];
     }
     
+    NSLog(@"Fetch URL: server=%@, fetcherScript=%@", self.serverUrl, self.serverFetcherScript);
     
     [client postPath:[NSString stringWithFormat:self.serverFetcherScript, self.className] parameters:postParams success:^(AFHTTPRequestOperation *operation, id responseObject) {
 
@@ -493,7 +495,11 @@ static NSMutableDictionary *synchingTablesDictionary;
 //        NSMutableURLRequest *request = [[AFHTTPClient sharedClient] multipartFormRequestWithMethod:@"POST" path:@"/upload.php" parameters:nil constructingBodyWithBlock: ^(id <AFMultipartFormData>formData) {
 //            [formData appendPartWithFileData:data mimeType:@"image/jpeg" name:@"attachment"];
 //        }];
-//        
+//
+        
+        NSLog(@"Fetch URL: server=%@, fetcherScript=%@", self.serverUrl, self.serverFetcherScript);
+        NSLog(@"Params = %@", params);
+        
         NSURLRequest *postRequest = [client multipartFormRequestWithMethod:@"POST" path:[NSString stringWithFormat:self.serverReceiverScript, self.className] parameters: params constructingBodyWithBlock:^(id <AFMultipartFormData>formData){
             int i=0;
             for (NSData * data in multipartData) {

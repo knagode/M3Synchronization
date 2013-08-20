@@ -10,10 +10,10 @@
 #import "M3Synchronization.h"
 #import "Car.h"
 
-/* constants */
+/* constants */ // TODO: everything should be renamet to save/get - it will be much more logical
 #define kUnitTestsWebsiteUrl @"http://synctest.talcho.com/"
-#define kUnitTestServerReceiverScript @"/mobile_scripts/getLastChangesDynamic.php?class=%@"
-#define kUnitTestServerFetcherScript @"/mobile_scripts/syncDynamic.php?class=%@"
+#define kUnitTestServerReceiverScript @"/mobile_scripts/syncDynamic.php?class=%@"
+#define kUnitTestServerFetcherScript @"/mobile_scripts/getLastChangesDynamic.php?class=%@"
 
 
 @interface M3SynchronizationTests(){}
@@ -37,7 +37,7 @@
     NSBundle *bundle = [NSBundle bundleForClass:[self class]];
     
     
-    NSURL *url = [bundle URLForResource:@"PotniStroski" withExtension:@"momd"];
+    NSURL *url = [bundle URLForResource:@"Database" withExtension:@"momd"];
     
     NSManagedObjectContext *moc = [[NSManagedObjectContext alloc] init];
     self.context = moc;
@@ -229,6 +229,7 @@
                                                   andServerFetcherScriptName: kUnitTestServerFetcherScript
                                                 andJsonSpecificationFileName: nil];
     syncEntity.delegate = self;
+    syncEntity.additionalPostParamsDictionary = [self getUserDevicePostDictionary];
     
     
     [self synchronousSyncWithEntity: syncEntity];
