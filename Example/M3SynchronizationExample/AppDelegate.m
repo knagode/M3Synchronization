@@ -2,22 +2,14 @@
 //  AppDelegate.m
 //  M3SynchronizationExample
 //
-//  Created by Klemen Nagode on 8/20/13.
+//  Created by Klemen Nagode on 8/21/13.
 //  Copyright (c) 2013 Mice3. All rights reserved.
 //
 
 #import "AppDelegate.h"
+#import "Constants.h"
 
 @implementation AppDelegate
-
-- (void)dealloc
-{
-    [_window release];
-    [_managedObjectContext release];
-    [_managedObjectModel release];
-    [_persistentStoreCoordinator release];
-    [super dealloc];
-}
 
 @synthesize managedObjectContext = _managedObjectContext;
 @synthesize managedObjectModel = _managedObjectModel;
@@ -25,11 +17,72 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
-    // Override point for customization after application launch.
-    self.window.backgroundColor = [UIColor whiteColor];
-    [self.window makeKeyAndVisible];
+//    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+//    // Override point for customization after application launch.
+//    self.window.backgroundColor = [UIColor whiteColor];
+//    [self.window makeKeyAndVisible];
+    
+    
+    
+    /* we manually create user + userDevice entity first */
+    NSDictionary * response = [self syncedRequest:[NSString stringWithFormat:@"%@/mobile_scripts/createDevice.php", kWebsiteUrl] andPostData:[NSDictionary dictionaryWithObjectsAndKeys:@"testgmailcom", @"email", nil]];
+    
+    [[NSUserDefaults standardUserDefaults] setValue:[response objectForKey:@"userDeviceId"] forKey:@"userDeviceId"];
+    [[NSUserDefaults standardUserDefaults] setValue:[response objectForKey:@"secureCode"] forKey:@"secureCode"];
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"isActivated"];
+    
+    
+    [self syncedRequest:[NSString stringWithFormat:@"%@/mobile_scripts/unitTests/activateUserDevice.php", kWebsiteUrl] andPostData:[NSMutableDictionary dictionaryWithDictionary:response]];
+    
+    
+    
     return YES;
+}
+
+-(id) syncedRequest: (NSString *) stringUrl andPostData: (NSMutableDictionary *) post
+{
+    NSURL *url = [NSURL URLWithString:stringUrl];
+    
+    NSMutableURLRequest *request = [[ NSMutableURLRequest alloc ] initWithURL: url];
+    
+    
+    if(post) {
+        NSString * postString = @"";
+        
+        NSArray * keys = [post allKeys];
+        for (int i = 0; i < [keys count]; i++) {
+            if(i>0) {
+                postString = [postString stringByAppendingString:@"&"];
+            }
+            
+            postString = [postString stringByAppendingFormat:@"%@=%@", [keys objectAtIndex:i], [post objectForKey:[keys objectAtIndex:i]]];
+        }
+        
+        NSData *myRequestData = [NSData dataWithBytes: [ postString UTF8String ] length: [ postString length ] ];
+        [request setHTTPMethod: @"POST"];
+        [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"content-type"];
+        [request setHTTPBody: myRequestData];
+    }
+    
+    
+    
+    NSURLResponse *response;
+    NSError *err;
+    NSData *returnData = [ NSURLConnection sendSynchronousRequest: request returningResponse:&response error:&err];
+    NSString *content = [[NSString alloc] initWithData:returnData encoding:NSUTF8StringEncoding];
+    NSLog(@"responseData: %@", content);
+    
+    NSError *e = nil;
+    
+    id JSON = [NSJSONSerialization JSONObjectWithData: [content dataUsingEncoding:NSUTF8StringEncoding]
+                                              options: NSJSONReadingMutableContainers
+                                                error: &e];
+    
+    if(e) {
+        NSLog(@"%@", e.description);
+    }
+    
+    return JSON;
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
@@ -99,7 +152,7 @@
     if (_managedObjectModel != nil) {
         return _managedObjectModel;
     }
-    NSURL *modelURL = [[NSBundle mainBundle] URLForResource:@"M3SynchronizationExample" withExtension:@"momd"];
+    NSURL *modelURL = [[NSBundle mainBundle] URLForResource:@"Database" withExtension:@"momd"];
     _managedObjectModel = [[NSManagedObjectModel alloc] initWithContentsOfURL:modelURL];
     return _managedObjectModel;
 }
@@ -112,7 +165,7 @@
         return _persistentStoreCoordinator;
     }
     
-    NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"M3SynchronizationExample.sqlite"];
+    NSURL *storeURL = [[self applicationDocumentsDirectory] URLByAppendingPathComponent:@"Database.sqlite"];
     
     NSError *error = nil;
     _persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:[self managedObjectModel]];

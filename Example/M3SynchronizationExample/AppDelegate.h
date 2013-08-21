@@ -2,7 +2,7 @@
 //  AppDelegate.h
 //  M3SynchronizationExample
 //
-//  Created by Klemen Nagode on 8/20/13.
+//  Created by Klemen Nagode on 8/21/13.
 //  Copyright (c) 2013 Mice3. All rights reserved.
 //
 
