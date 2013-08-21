@@ -64,6 +64,6 @@ I have included some pseudo code in /ServerImplementations/ directory. You dont 
 All you have to do is to rewrite the pseudo code so it'll fit your framework. If you use PHP+Doctrine you just have to tweak the code a little bit and you are ready to GO!
 
 
-<h1>Android support</h1>
-Contact me at <a href="mailto:klemen.nagode@gmail.com" if you need Android client side. I already developed Android class but have to make it more portable before publishing it. I would be glad to share it with you if you are in need ;)
+<h1>Android support?</h1>
+Contact me at <a href="mailto:klemen.nagode@gmail.com">klemen.nagode@gmail.com</a> if you need Android client side. I already developed Android class but have to make it more portable before publishing it. I would be glad to share it with you if you are in need ;)
 
