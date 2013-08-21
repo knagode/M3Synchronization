@@ -62,8 +62,8 @@ Dont forget to generate class models again. Your client is ready to go.
 <h1>What about server?</h1>
 I have included some pseudo code in /ServerImplementations/ directory. You dont need a lot to handle server side: 300-500 lines of code should do the work. There are two important files:
 
-<a href="https://github.com/knagode/M3Synchronization/blob/master/ServerImplementations/PHP%2BDoctrine/synchronizationGet.php">File which read data from server</a>
-<a href="https://github.com/knagode/M3Synchronization/blob/master/ServerImplementations/PHP%2BDoctrine/synchronizationSave.php">And file which save changes to server</a>
+- <a href="https://github.com/knagode/M3Synchronization/blob/master/ServerImplementations/PHP%2BDoctrine/synchronizationGet.php">File which read data from server</a>
+- <a href="https://github.com/knagode/M3Synchronization/blob/master/ServerImplementations/PHP%2BDoctrine/synchronizationSave.php">And file which save changes to server</a>
 
 All you have to do is to rewrite the pseudo code so it'll fit your framework. If you use PHP+Doctrine you just have to tweak the code a little bit and you are ready to GO!
 
