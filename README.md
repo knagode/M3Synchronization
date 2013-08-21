@@ -57,3 +57,9 @@ Dont forget to generate class models again. Your client is ready to go.
 
 <b>Whenever you add new Object to CoreData you have to call: [nsManagedObject markAsJustInserted] or [nsManagedObject markAsDirty] when just modifying data.</b>
 
+
+
+<h1>What about server?</h1>
+I have included some pseudo code in /ServerImplementations/ directory. You dont need a lot of code to handle server side - 300-500 lines of code will do the work.
+All you have to do is to rewrite the pseudo so it fits your framework. If you use PHP with MySQL you just have to tweak a code a little bit and it will work. 
+
