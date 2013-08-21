@@ -34,7 +34,7 @@ Feel free to check /Example/ folder where you can find running example of implem
 
 <h3>Install instructions</h3>
 
-How to add to your project (See /Example for working example):
+How to add to your project:
 
 - Add /M3Synchronization/ (which contains M3Synchronization.h ...) to your project
 - Add /Dependencies/AFNetworking/AFNetworking/ (contains AFHttpClient.h ...) to your project if you dont use it already
@@ -43,6 +43,15 @@ Click on your project -> build settings -> <<your target>> -> Link binary with L
 
 - CoreData.framework
 - Security.framework
+
+On every table you want to sync you have to add some metadata columns:
+- isDirty
+- timestampModified
+- timestampInserted
+- remoteId
+- is_Deleted (isDeleted is reserved property, sorry)
+
+Dont forget to generate class models again. Your client is ready to go.
 
 
 
