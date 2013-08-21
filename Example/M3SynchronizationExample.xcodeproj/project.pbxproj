@@ -32,9 +32,9 @@
 		AD7B96AB17C4332500768747 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AD7B96AA17C4332500768747 /* Security.framework */; };
 		AD7B96AD17C43DD000768747 /* Storyboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AD7B96AC17C43DD000768747 /* Storyboard.storyboard */; };
 		AD7B96B017C43EC500768747 /* CarViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AD7B96AF17C43EC400768747 /* CarViewController.m */; };
-		AD7B96B617C445CF00768747 /* Database.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = AD7B96B417C445CF00768747 /* Database.xcdatamodeld */; };
 		AD7B96BA17C4498B00768747 /* Database.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = AD7B96B717C4498B00768747 /* Database.xcdatamodeld */; };
-		AD7B96BB17C4498B00768747 /* syncSpecifications.json in Resources */ = {isa = PBXBuildFile; fileRef = AD7B96B917C4498B00768747 /* syncSpecifications.json */; };
+		AD7B96BE17C4B86700768747 /* Car.m in Sources */ = {isa = PBXBuildFile; fileRef = AD7B96BD17C4B86700768747 /* Car.m */; };
+		AD7B96C117C4F12600768747 /* AddOrEditViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AD7B96C017C4F12500768747 /* AddOrEditViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -81,9 +81,11 @@
 		AD7B96AE17C43EC400768747 /* CarViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CarViewController.h; sourceTree = "<group>"; };
 		AD7B96AF17C43EC400768747 /* CarViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CarViewController.m; sourceTree = "<group>"; };
 		AD7B96B117C440EF00768747 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
-		AD7B96B517C445CF00768747 /* Database.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Database.xcdatamodel; sourceTree = "<group>"; };
 		AD7B96B817C4498B00768747 /* Database.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Database.xcdatamodel; sourceTree = "<group>"; };
-		AD7B96B917C4498B00768747 /* syncSpecifications.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = syncSpecifications.json; sourceTree = "<group>"; };
+		AD7B96BC17C4B86700768747 /* Car.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Car.h; sourceTree = "<group>"; };
+		AD7B96BD17C4B86700768747 /* Car.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Car.m; sourceTree = "<group>"; };
+		AD7B96BF17C4F12500768747 /* AddOrEditViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AddOrEditViewController.h; sourceTree = "<group>"; };
+		AD7B96C017C4F12500768747 /* AddOrEditViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AddOrEditViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,16 +139,18 @@
 			isa = PBXGroup;
 			children = (
 				AD7B96B717C4498B00768747 /* Database.xcdatamodeld */,
-				AD7B96B917C4498B00768747 /* syncSpecifications.json */,
+				AD7B96BC17C4B86700768747 /* Car.h */,
+				AD7B96BD17C4B86700768747 /* Car.m */,
 				AD7B967517C4326A00768747 /* AppDelegate.h */,
 				AD7B967617C4326A00768747 /* AppDelegate.m */,
 				AD7B967E17C4326A00768747 /* _M3SynchronizationExample.xcdatamodeld */,
 				AD7B966D17C4326A00768747 /* Supporting Files */,
 				AD7B96AC17C43DD000768747 /* Storyboard.storyboard */,
+				AD7B96BF17C4F12500768747 /* AddOrEditViewController.h */,
+				AD7B96C017C4F12500768747 /* AddOrEditViewController.m */,
 				AD7B96AE17C43EC400768747 /* CarViewController.h */,
 				AD7B96AF17C43EC400768747 /* CarViewController.m */,
 				AD7B96B117C440EF00768747 /* Constants.h */,
-				AD7B96B417C445CF00768747 /* Database.xcdatamodeld */,
 			);
 			path = M3SynchronizationExample;
 			sourceTree = "<group>";
@@ -260,7 +264,6 @@
 				AD7B967B17C4326A00768747 /* Default@2x.png in Resources */,
 				AD7B967D17C4326A00768747 /* Default-568h@2x.png in Resources */,
 				AD7B96AD17C43DD000768747 /* Storyboard.storyboard in Resources */,
-				AD7B96BB17C4498B00768747 /* syncSpecifications.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -286,8 +289,9 @@
 				AD7B96A817C4330800768747 /* M3Synchronization.m in Sources */,
 				AD7B96A917C4330800768747 /* NSManagedObject+markAsDirty.m in Sources */,
 				AD7B96B017C43EC500768747 /* CarViewController.m in Sources */,
-				AD7B96B617C445CF00768747 /* Database.xcdatamodeld in Sources */,
 				AD7B96BA17C4498B00768747 /* Database.xcdatamodeld in Sources */,
+				AD7B96BE17C4B86700768747 /* Car.m in Sources */,
+				AD7B96C117C4F12600768747 /* AddOrEditViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -416,16 +420,6 @@
 			);
 			currentVersion = AD7B967F17C4326A00768747 /* _M3SynchronizationExample.xcdatamodel */;
 			path = _M3SynchronizationExample.xcdatamodeld;
-			sourceTree = "<group>";
-			versionGroupType = wrapper.xcdatamodel;
-		};
-		AD7B96B417C445CF00768747 /* Database.xcdatamodeld */ = {
-			isa = XCVersionGroup;
-			children = (
-				AD7B96B517C445CF00768747 /* Database.xcdatamodel */,
-			);
-			currentVersion = AD7B96B517C445CF00768747 /* Database.xcdatamodel */;
-			path = Database.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};

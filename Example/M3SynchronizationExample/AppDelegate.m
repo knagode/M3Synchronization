@@ -17,23 +17,41 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-//    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-//    // Override point for customization after application launch.
-//    self.window.backgroundColor = [UIColor whiteColor];
-//    [self.window makeKeyAndVisible];
+    
+    /* clear database first */
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Car" inManagedObjectContext:self.managedObjectContext];
+    [fetchRequest setEntity:entity];
+    
+    NSError *error;
+    NSArray *items = [_managedObjectContext executeFetchRequest:fetchRequest error:&error];
     
     
+    for (NSManagedObject *managedObject in items) {
+    	[_managedObjectContext deleteObject:managedObject];
+    }
+    if (![_managedObjectContext save:&error]) {
+    	
+    }
     
-    /* we manually create user + userDevice entity first */
-    NSDictionary * response = [self syncedRequest:[NSString stringWithFormat:@"%@/mobile_scripts/createDevice.php", kWebsiteUrl] andPostData:[NSDictionary dictionaryWithObjectsAndKeys:@"testgmailcom", @"email", nil]];
     
+    /* we manually create user with unique email + userDevice entity first */
+    NSDictionary * response = [self syncedRequest:[NSString stringWithFormat:@"%@/mobile_scripts/createDevice.php", kWebsiteUrl] andPostData:[NSDictionary dictionaryWithObjectsAndKeys: [NSString stringWithFormat:@"%f-example@mice3.it", [[NSDate date] timeIntervalSince1970]], @"email", nil]];
+    
+    /* we save user authentication params in userDefaults to access it later */
     [[NSUserDefaults standardUserDefaults] setValue:[response objectForKey:@"userDeviceId"] forKey:@"userDeviceId"];
     [[NSUserDefaults standardUserDefaults] setValue:[response objectForKey:@"secureCode"] forKey:@"secureCode"];
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"isActivated"];
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"isActivated"]; // todo remove - this should not be part of our library
+    
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"User Created" message: [NSString stringWithFormat:@"Use this URL to view/edit online version of data: %@/cars.php?userDeviceId=%@", kWebsiteUrl, [response objectForKey:@"userDeviceId"]] delegate: nil cancelButtonTitle: @"Ok" otherButtonTitles: nil];
+    [alert show];
     
     
+    /* After creation of device with email - user has to activate email link - we will activate it manually */
     [self syncedRequest:[NSString stringWithFormat:@"%@/mobile_scripts/unitTests/activateUserDevice.php", kWebsiteUrl] andPostData:[NSMutableDictionary dictionaryWithDictionary:response]];
     
+    /* We request first car creation on server */
+    [self syncedRequest:[NSString stringWithFormat:@"%@/mobile_scripts/unitTests/insertNewCar.php", kWebsiteUrl] andPostData:[NSMutableDictionary dictionaryWithDictionary:response]];
     
     
     return YES;

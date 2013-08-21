@@ -23,6 +23,8 @@
 @property (nonatomic, copy) NSString * serverUrl;
 @property (nonatomic, copy) NSString * serverReceiverScript;
 @property (nonatomic, copy) NSString * serverFetcherScript;
+@property (nonatomic, strong) NSArray *uniqueTableFields; // unique fields are for used for detection and merging of duplicates
+@property (nonatomic, strong) NSArray *syncedTableFields; // all fields that will be synchronized
 
 @end
 
@@ -49,13 +51,14 @@ static NSMutableDictionary *synchingTablesDictionary;
                     andServerUrl: (NSString *) serverUrl
      andServerReceiverScriptName: (NSString *) serverReceiverScript
       andServerFetcherScriptName: (NSString *) serverFetcherScript
-    andJsonSpecificationFileName: (NSString *) jsonFileName
+            ansSyncedTableFields: (NSArray *) syncedTableFields
+            andUniqueTableFields: (NSArray *) uniqueTableFields
 {
     if(self = [self init]){
         
-        if (!jsonFileName) {
-            jsonFileName = @"syncSpecifications";
-        }
+//        if (!jsonFileName) {
+//            jsonFileName = @"syncSpecifications";
+//        }
         
         if (!serverReceiverScript) {
             serverReceiverScript = @"/mobile_scripts/getLastChangesDynamic.php?class=%@";
@@ -70,10 +73,10 @@ static NSMutableDictionary *synchingTablesDictionary;
         }
         
         
-        NSDictionary *json = [self getJsonFromFile:jsonFileName];
+        //NSDictionary *json = [self getJsonFromFile:jsonFileName];
         
         self.className = className;
-        self.classSettings = [json objectForKey:className];
+        //self.classSettings = nil; // [json objectForKey:className];
                 
         self.context = context;
         
@@ -81,59 +84,66 @@ static NSMutableDictionary *synchingTablesDictionary;
         self.serverFetcherScript = serverFetcherScript;
         self.serverReceiverScript = serverReceiverScript;
         
+        self.uniqueTableFields = uniqueTableFields;
+        self.syncedTableFields = syncedTableFields;
+        
     }
     return self;
 }
 
--(id) getJsonFromFile: (NSString *) file
-{
-    NSError *error;
-    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-    
-    NSString *filePath = [bundle pathForResource:@"syncSpecifications" ofType:@"json"];
-    NSString *jsonString = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:&error];
-    
-    if(error) {
-        NSLog(@"%@", error);
-    }
-    
-    
-    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-    NSDictionary *results = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error];
-    
-    if(error) {
-        NSLog(@"%@", error);
-    }
-    
-    //NSLog(@"%@", results);
-    
-    return results;
+//-(id) getJsonFromFile: (NSString *) file
+//{
+//    NSError *error;
+//    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+//    
+//    NSString *filePath = [bundle pathForResource:@"syncSpecifications" ofType:@"json"];
+//    NSString *jsonString = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:&error];
+//    
+//    if(error) {
+//        NSLog(@"%@", error);
+//    }
+//    
+//    
+//    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+//    NSDictionary *results = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error];
+//    
+//    if(error) {
+//        NSLog(@"%@", error);
+//    }
+//    
+//    //NSLog(@"%@", results);
+//    
+//    return results;
+//}
+
+-(NSString *) getIsSyncedWhenActivatedKey {
+    return [@"isSyncedWhenActivated_" stringByAppendingString:self.className];
 }
 
-
--(BOOL) isActivated {
+-(BOOL) isSyncedWhenActivated {
     
-    BOOL isActivated = [[NSUserDefaults standardUserDefaults] boolForKey:@"isActivated"];
+    BOOL isActivated = [[NSUserDefaults standardUserDefaults] boolForKey:[self getIsSyncedWhenActivatedKey]];
     return isActivated;
 }
 
 -(void) sync {
     // todo
     
-    if (![self isActivated]) {
-      
-        if([[self.classSettings objectForKey:@"authenticationType"] isEqualToString:@"deviceId"]) {
-            // we allow syncing even if user has not yet activated account
-            if([[NSUserDefaults standardUserDefaults] integerForKey:@"userDeviceId"] < 1) {
-                return; // we require that device has been registrated (email was set but not yet activated
-            }
-        } else if([[self.classSettings objectForKey:@"authenticationType"] isEqualToString:@"userId"]) {
-            self.isSyncing = NO;
-            [self.delegate onSynchronizationError:self];
-            return; // do not sync device is not activated
-        }
-        
-    }
+//    if (![self isSyncedWhenActivated]) {
+//      
+//        if([[self.classSettings objectForKey:@"authenticationType"] isEqualToString:@"deviceId"]) {
+//            // we allow syncing even if user has not yet activated account
+//            if([[NSUserDefaults standardUserDefaults] integerForKey:@"userDeviceId"] < 1) {
+//                [self.delegate onSynchronizationError:self];
+//                return; // we require that device has been registrated (email was set but not yet activated
+//            }
+//        } else if([[self.classSettings objectForKey:@"authenticationType"] isEqualToString:@"userId"]) {
+//            self.isSyncing = NO;
+//            [self.delegate onSynchronizationError:self];
+//            return; // do not sync device is not activated
+//        }
+//        
+//    }
     
     
     
@@ -154,8 +164,8 @@ static NSMutableDictionary *synchingTablesDictionary;
             self.countModifiedItemsFromServer = 0;
             self.currentSyncIndex = 0;
 
-            NSString * syncDirection = [self.classSettings valueForKey:@"syncDirection"];
-            if(syncDirection && [syncDirection isEqualToString:@"toServer"]) {
+//            NSString * syncDirection = [self.classSettings valueForKey:@"syncDirection"];
+            if(self.syncToServerOnly) {
                 [self sendNewDataToServer]; // if we do not need to receive data to server just send new data to server
             } else {
                 [self getModifiedDataFromServer]; // step 1, on success: merge => send new data do server
@@ -169,7 +179,7 @@ static NSMutableDictionary *synchingTablesDictionary;
 {
     int lastTimestamp = [[NSUserDefaults standardUserDefaults] integerForKey:[NSString stringWithFormat:@"lastTimestampFromServer_%@", self.className]];
     
-    if(![self isActivated]) {
+    if(![self isSyncedWhenActivated]) {
         return 0; // until device is activated - we try to load all data from server - data with timestamp > 0
     }
     
@@ -262,9 +272,11 @@ static NSMutableDictionary *synchingTablesDictionary;
         
         
         if(!error &&  ![[JSON objectForKey:@"hasError"] boolValue]) {
-            BOOL isActivated = [[NSUserDefaults standardUserDefaults] boolForKey:@"isActivated"];
+            BOOL isActivated = [self isSyncedWhenActivated];
             if(!isActivated) {
-                [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"isActivated"];
+                [[NSUserDefaults standardUserDefaults] setBool:YES forKey:[self getIsSyncedWhenActivatedKey]];
+                
+                [self onDeviceActivationDetected];
             }
             
             NSArray * items = [JSON objectForKey:@"items"];
@@ -284,8 +296,8 @@ static NSMutableDictionary *synchingTablesDictionary;
                 
                 
                 // check for unique fields
-                if([self.classSettings objectForKey:@"uniqueFields"]) {
-                    NSArray * fields = (NSArray *)[self.classSettings objectForKey:@"uniqueFields"];
+                if(self.uniqueTableFields) {
+                    NSArray * fields = self.uniqueTableFields;
                     
                     if ([fields count]) {
                         // check for duplicates and delete them
@@ -370,7 +382,7 @@ static NSMutableDictionary *synchingTablesDictionary;
                 [entity setValue:[NSNumber numberWithBool:[[item objectForKey:@"isDeleted"] boolValue]] forKey:@"is_Deleted"];
                 [entity setValue: [NSNumber numberWithBool:NO] forKey:@"isDirty"];
                 
-                NSArray * fields = [self.classSettings valueForKey:@"fieldsToSyncBothWays"];
+                NSArray * fields = self.syncedTableFields;
 
                 
                 for(NSString * field in fields) {
@@ -424,8 +436,6 @@ static NSMutableDictionary *synchingTablesDictionary;
     
     if([self.itemsToSync count] == 0) {
         
-        //[[SynchronizationManager sharedManager].synchingTablesDictionary removeObjectForKey:self.className];
-        
         [[M3Synchronization getSynchingTableDictionary] removeObjectForKey:self.className];
         
         if ([self.delegate respondsToSelector:@selector(onSynchronizationComplete:)]) {
@@ -445,7 +455,7 @@ static NSMutableDictionary *synchingTablesDictionary;
         
         NSMutableDictionary * entityDictionary = [NSMutableDictionary dictionaryWithCapacity:20];
         
-        NSMutableArray * fields = [NSMutableArray arrayWithArray:[self.classSettings valueForKey:@"fieldsToSyncBothWays"]];
+        NSMutableArray * fields = [NSMutableArray arrayWithArray:self.syncedTableFields];
         [fields addObject:@"timestampModified"];
         [fields addObject:@"timestampInserted"];
 
@@ -591,9 +601,9 @@ static NSMutableDictionary *synchingTablesDictionary;
     
     NSString * predicateString = @"remoteId < 1 or isDirty = YES";
     
-    NSString * clientNewDataPredicate = [self.classSettings objectForKey:@"clientNewDataPredicate"];
-    if (clientNewDataPredicate) {
-        predicateString =  [NSString stringWithFormat:@"(%@) AND (%@)", predicateString, clientNewDataPredicate];
+//    NSString * clientNewDataPredicate = [self.classSettings objectForKey:@"clientNewDataPredicate"];
+    if (self.clientNewDataPredicate) {
+        predicateString =  [NSString stringWithFormat:@"(%@) AND (%@)", predicateString, self.clientNewDataPredicate];
     }
     
     NSPredicate *predicate = [NSPredicate predicateWithFormat:predicateString];
@@ -648,6 +658,10 @@ static NSMutableDictionary *synchingTablesDictionary;
 -(void) onError: (NSError *) error andDescription: (NSString *) description
 {
     // this method should be overriden and do special actions - eg: loading UI hide
+}
+
+-(void) onDeviceActivationDetected {
+    // what to do when sync and detect that in mean time - device was activated
 }
 
 

@@ -227,7 +227,8 @@
                                                                 andServerUrl: kUnitTestsWebsiteUrl
                                                  andServerReceiverScriptName: kUnitTestServerReceiverScript
                                                   andServerFetcherScriptName: kUnitTestServerFetcherScript
-                                                andJsonSpecificationFileName: nil];
+                                                        ansSyncedTableFields:@[@"licenceNumber", @"manufacturer", @"model"]
+                                                        andUniqueTableFields:@[@"licenceNumber"]];
     syncEntity.delegate = self;
     syncEntity.additionalPostParamsDictionary = [self getUserDevicePostDictionary];
     
