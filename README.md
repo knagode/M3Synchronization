@@ -39,7 +39,7 @@ How to add to your project:
 - Add /M3Synchronization/ (which contains M3Synchronization.h ...) to your project
 - Add /Dependencies/AFNetworking/AFNetworking/ (contains AFHttpClient.h ...) to your project if you dont use it already
 
-Click on your project -> build settings -> <<your target>> -> Link binary with Libraries and make shure you have included following frameworks:
+Click on your project -> build settings -> <i>your target</i> -> Link binary with Libraries and make shure you have included following frameworks:
 
 - CoreData.framework
 - Security.framework
@@ -55,5 +55,15 @@ On every table you want to sync you have to add some metadata columns:
 
 Dont forget to generate class models again. Your client is ready to go.
 
+<b>Whenever you add new Object to CoreData you have to call: [nsManagedObject markAsJustInserted] or [nsManagedObject markAsDirty] when just modifying data.</b>
 
+
+
+<h1>What about server?</h1>
+I have included some pseudo code in /ServerImplementations/ directory. You dont need a lot to handle server side - 300-500 lines of code should do the work.
+All you have to do is to rewrite the pseudo code so it'll fit your framework. If you use PHP+Doctrine you just have to tweak the code a little bit and you are ready to GO!
+
+
+<h1>Android support?</h1>
+Contact me at <a href="mailto:klemen.nagode@gmail.com">klemen.nagode@gmail.com</a> if you need Android client side. I already developed Android class but have to make it more portable before publishing it. I would be glad to share it with you if you are in need ;)
 
