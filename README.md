@@ -60,6 +60,10 @@ Dont forget to generate class models again. Your client is ready to go.
 
 
 <h1>What about server?</h1>
-I have included some pseudo code in /ServerImplementations/ directory. You dont need a lot of code to handle server side - 300-500 lines of code will do the work.
-All you have to do is to rewrite the pseudo so it fits your framework. If you use PHP with MySQL you just have to tweak a code a little bit and it will work. 
+I have included some pseudo code in /ServerImplementations/ directory. You dont need a lot to handle server side - 300-500 lines of code should do the work.
+All you have to do is to rewrite the pseudo code so it'll fit your framework. If you use PHP+Doctrine you just have to tweak the code a little bit and you are ready to GO!
+
+
+<h1>Android support</h1>
+Contact me at <a href="mailto:klemen.nagode@gmail.com" if you need Android client side. I already developed Android class but have to make it more portable before publishing it. I would be glad to share it with you if you are in need ;)
 
