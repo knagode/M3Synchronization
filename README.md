@@ -3,7 +3,7 @@ M3Synchronization
 
 Client and server synchronization of database tables. This code is for OBJC+CoreData client.
 
-Code sample:
+<h2>Code sample:</h2>
 <pre>
     M3Synchronization * syncEntity = [[M3Synchronization alloc] initForClass: @"Car"
                                                                   andContext: context
@@ -16,6 +16,19 @@ Code sample:
     
     [syncEntity sync];
 </pre>
+
+<h2>Entity model specification (simple json file - same on client and server):</h2>
+<pre>
+{
+	"Car": {
+ 		"authenticationType": "userId",
+	 	"fieldsToSyncBothWays":["licenceNumber","manufacturer","model"],
+	 	"uniqueFields":["licenceNumber"]
+ 	}
+}
+</pre>
+
+
 
 
 How to add to your project (See /Example for working example):
