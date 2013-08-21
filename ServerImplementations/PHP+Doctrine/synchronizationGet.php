@@ -25,11 +25,6 @@
 		exit;
     }
 
-	
-
-	
-	file_put_contents("getLastChanges_POST.txt", print_r($_POST, true));
-	
 	require_once("../doctrine_bootstrap.php");
 	require_once("functionsLibrary.php"); 
 	
