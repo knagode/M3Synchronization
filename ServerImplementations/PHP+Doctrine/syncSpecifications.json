@@ -1,0 +1,14 @@
+{
+	"Car": {
+ 		"authenticationType": "userId",
+	 	"fieldsToSyncBothWays":["licenceNumber","manufacturer","model"],
+	 	"uniqueFields":["licenceNumber"]
+ 	},
+
+ 	"Route": {
+		"authenticationType": "userId",
+		"serverAfterSave":"routeGroupAfterSave",
+		"uniqueFields":["datetimeStart"],
+	 	"fieldsToSyncBothWays":["datetimeStart","datetimeStop", "priceTotal", "distanceTotal"] 
+ 	}
+}

@@ -116,8 +116,6 @@
                                                         ansSyncedTableFields:@[@"licenceNumber", @"manufacturer", @"model"]
                                                         andUniqueTableFields:@[@"licenceNumber"]];
     
-
-    
     
     syncEntity.delegate = self;
     syncEntity.additionalPostParamsDictionary = [NSMutableDictionary dictionary];
