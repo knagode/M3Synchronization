@@ -17,7 +17,8 @@ Client and server synchronization of database tables. This code is for OBJC+Core
     [syncEntity sync];
 </pre>
 
-<h2>Entity model specification (simple json file - same on client and server):</h2>
+<h2>Entity model specification:</h2>
+Entity model sync definition is stored in JSON file and is the same on client and server. Just put more values in JSON to allow other entities to be synced.
 <pre>
 {
 	"Car": {
@@ -29,7 +30,7 @@ Client and server synchronization of database tables. This code is for OBJC+Core
 </pre>
 
 
-
+<h3>Install instructions</h3>
 
 How to add to your project (See /Example for working example):
 
