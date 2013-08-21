@@ -1,34 +1,34 @@
 M3Synchronization
 =================
 
-Client and server synchronization of database tables. This code is for OBJC+CoreData client.
+Client and server synchronization of database tables. This code is for OBJC+CoreData client. For server side you can use <a href="#">this repo</a>.
+
+<h3>Funcionalities</h3>
+- <b>Sync client and server database table so client and server both have same values</b>
+- Class knows how to resolve merge conflicts - if same row is modified on server and client only the newest one will be used
+- Class in reliable even in low network quality - it automatically detects redundant data and corrects it
+- It is easy to send files (e.g. photos) to server
+- It is possible to easily send nested data together (e.g. News + NewsComment)
+- With predicates it is possible to filter which rows will be sent to server (You can send only rows which will not change in the near future)
+- You can easily connect it with custom user athentication systems - you can pass additional POST params in every request to your server
+- When user will register, server will return all data but next time just rows that have been changed
 
 <h2>Code sample:</h2>
 <pre>
-    M3Synchronization * syncEntity = [[M3Synchronization alloc] initForClass: @"Car"
+   M3Synchronization * syncEntity = [[M3Synchronization alloc] initForClass: @"Car"
                                                                   andContext: context
-                                                                andServerUrl: @"http://yourserver.tld"
-                                                 andServerReceiverScriptName: @"/mobile/syncSave?class=%@"
-                                                  andServerFetcherScriptName: @"/mobile/syncGet?class=%@"
-                                                andJsonSpecificationFileName: @"syncSpecifications"];
+                                                                andServerUrl: kWebsiteUrl
+                                                 andServerReceiverScriptName: kServerReceiverScript
+                                                  andServerFetcherScriptName: kServerFetcherScript
+                                                        ansSyncedTableFields:@[@"licenceNumber", @"manufacturer", @"model"]
+                                                        andUniqueTableFields:@[@"licenceNumber"]];
+                                                
+                                                
     syncEntity.delegate = self; // delegate should implement onComplete and onError methods
     syncEntity.additionalPostParamsDictionary = ... // add some POST params to authenticate current user
     
     [syncEntity sync];
 </pre>
-
-<h2>Entity model specification:</h2>
-Entity model sync definition is stored in JSON file and is the same on client and server. Just put more values in JSON to allow other entities to be synced.
-<pre>
-{
-	"Car": {
- 		"authenticationType": "userId",
-	 	"fieldsToSyncBothWays":["licenceNumber","manufacturer","model"],
-	 	"uniqueFields":["licenceNumber"]
- 	}
-}
-</pre>
-
 
 <h3>Install instructions</h3>
 
