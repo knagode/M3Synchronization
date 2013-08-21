@@ -223,7 +223,8 @@ static NSMutableDictionary *synchingTablesDictionary;
         return [NSMutableDictionary dictionary];
     }
     
-    return self.additionalPostParamsDictionary;
+
+    return [[NSMutableDictionary alloc] initWithDictionary:self.additionalPostParamsDictionary copyItems:YES];
 }
 
 
@@ -461,6 +462,9 @@ static NSMutableDictionary *synchingTablesDictionary;
 
         
         [entityDictionary setValue:[entity valueForKey:@"is_Deleted"] forKey:@"isDeleted"];
+        
+        NSLog(@"FIELDS=======>%@", fields);
+        
         for (NSString * field in fields) {
             
             if ([field rangeOfString:@"datetime"].location != NSNotFound) {
