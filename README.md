@@ -44,6 +44,8 @@ Click on your project -> build settings -> <<your target>> -> Link binary with L
 - CoreData.framework
 - Security.framework
 
+<h3>CoreData table modifications</h3>
+
 On every table you want to sync you have to add some metadata columns:
 - isDirty
 - timestampModified
