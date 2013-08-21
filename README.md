@@ -55,5 +55,5 @@ On every table you want to sync you have to add some metadata columns:
 
 Dont forget to generate class models again. Your client is ready to go.
 
-
+<b>Whenever you add new Object to CoreData you have to call: [nsManagedObject markAsJustInserted] or [nsManagedObject markAsDirty] when just modifying data.</b>
 
