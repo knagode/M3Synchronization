@@ -3,7 +3,7 @@ M3Synchronization
 
 Client and server synchronization of database tables. This code is for OBJC+CoreData client. For server side you can use <a href="#">this repo</a>.
 
-<h3>Funcionalities</h3>
+<h3>Functionalities</h3>
 - <b>Sync client and server database table so client and server both have same values</b>
 - Class knows how to resolve merge conflicts - if same row is modified on server and client only the newest one will be used
 - Class in reliable even in low network quality - it automatically detects redundant data and corrects it
@@ -13,7 +13,7 @@ Client and server synchronization of database tables. This code is for OBJC+Core
 - You can easily connect it with custom user athentication systems - you can pass additional POST params in every request to your server
 - When user will register, server will return all data but next time just rows that have been changed
 
-<h2>Code sample:</h2>
+<h2>Code example:</h2>
 <pre>
    M3Synchronization * syncEntity = [[M3Synchronization alloc] initForClass: @"Car"
                                                                   andContext: context
@@ -29,6 +29,8 @@ Client and server synchronization of database tables. This code is for OBJC+Core
     
     [syncEntity sync];
 </pre>
+
+Feel free to check /Example/ folder where you can find running example of implementation. You can just tweak it a little bit and use with your own project.
 
 <h3>Install instructions</h3>
 
