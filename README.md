@@ -15,7 +15,7 @@ Code sample:
     syncEntity.additionalPostParamsDictionary = ... // add some POST params to authenticate current user
     
     [syncEntity sync];
-<pre>
+</pre>
 
 
 How to add to your project (See /Example for working example):
