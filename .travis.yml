@@ -1,1 +1,3 @@
 language: objective-c
+workspace: Workspace.xcworkspace
+scheme: M3SynchronizationTests
