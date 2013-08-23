@@ -1,2 +1,4 @@
 language: objective-c
-script: xcodebuild clean test -workspace Workspace.xcworkspace -scheme M3SynchronizationTests
+script:
+  - cd UnitTests
+  - xcodebuild clean test -project M3SynchronizationTests.xcodeproj -target M3SynchronizationTests
