@@ -1,7 +1,7 @@
 language: objective-c
 
 before_script: 
-  - chmod -R 777 Travis/.before_script.sh
+  - chmod -R 777 Travis/before_script.sh
   - cd Travis
   - ./before_script.sh
 script: 
