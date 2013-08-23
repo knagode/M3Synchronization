@@ -1,3 +1,2 @@
 language: objective-c
-workspace: Workspace.xcworkspace
-scheme: M3SynchronizationTests
+script: xcodebuild clean test -workspace Workspace.xcworkspace -scheme M3SynchronizationTests
