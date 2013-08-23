@@ -184,8 +184,6 @@
     int diff = abs(clientTime - serverTime);
     
     STAssertTrue(diff < 20 , [NSString stringWithFormat:@"time stamps are not equal. Diff: %d", serverTime-clientTime]);
-    
-    
 }
 
 

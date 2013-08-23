@@ -1,8 +1,8 @@
 language: objective-c
 
 before_script: 
-	-Travis/before_script.sh
-	-Travis/before_script.sh
+-Travis/before_script.sh
+-Travis/before_script.sh
 script: 
-	-Travis/script.sh
-	-Travis/script.sh
+-Travis/script.sh
+-Travis/script.sh
