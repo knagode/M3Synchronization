@@ -168,6 +168,10 @@
     return cars;
 }
 
+-(void) testSendFile {
+    STFail(@"Test fail?");
+}
+
 
 -(void) testTimezones {
     
