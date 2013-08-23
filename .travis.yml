@@ -1,4 +1,4 @@
 language: objective-c
 script:
   - cd UnitTests
-  - xctool -project M3SynchronizationTests.xcodeproj -target M3SynchronizationTests test
+  - xctool -project M3SynchronizationTests.xcodeproj -sheme M3SynchronizationTests test
