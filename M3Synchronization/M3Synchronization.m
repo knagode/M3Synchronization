@@ -26,6 +26,8 @@
 @property (nonatomic, strong) NSArray *uniqueTableFields; // unique fields are for used for detection and merging of duplicates
 @property (nonatomic, strong) NSArray *syncedTableFields; // all fields that will be synchronized
 
+@property (nonatomic, strong) NSMutableArray * multipartDataArray;
+
 @end
 
 @implementation M3Synchronization
@@ -44,6 +46,15 @@ static NSMutableDictionary *synchingTablesDictionary;
 //-(id) initForClass: (NSString *) className{
 //    return [self initForClass:className andContext:nil andServerUrl:nil];
 //}
+
+-(NSMutableArray *) multipartDataArray
+{
+    if (!_multipartDataArray) {
+        _multipartDataArray = [NSMutableArray arrayWithCapacity:5];
+    }
+    return _multipartDataArray;
+}
+
 
 
 -(id)               initForClass: (NSString *) className
@@ -261,7 +272,7 @@ static NSMutableDictionary *synchingTablesDictionary;
 //                                                 cancelButtonTitle:@"OK"
 //                                                 otherButtonTitles:nil];
 //            [alert show];
-//            
+//
 //            self.isSyncing = NO;
             
             [self handleError:error andDescription:text];
@@ -330,28 +341,24 @@ static NSMutableDictionary *synchingTablesDictionary;
                     predicateString = [NSString stringWithFormat:@"(%@) or", predicateString];
                 }
                 predicateString = [NSString stringWithFormat:@"%@ (remoteId=%d)", predicateString, remoteId];
-                
-                
+
                 // get local duplicates
                 NSFetchRequest *request = [[NSFetchRequest alloc] init];
                 NSEntityDescription * entityDescription = [NSEntityDescription entityForName:self.className inManagedObjectContext:self.context];
                 [request setEntity:entityDescription];
                 
                 NSPredicate *predicate = [NSPredicate predicateWithFormat:predicateString];
-                
                 NSSortDescriptor* sortDescriptor = [[NSSortDescriptor alloc]
                                                     initWithKey:@"timestampModified" ascending:NO];
                 NSArray *sortDescriptors = [[NSArray alloc] initWithObjects: sortDescriptor, nil];
                 [request setSortDescriptors:sortDescriptors];
-                
                 [request setPredicate:predicate];
                 
                 NSArray * array = [NSMutableArray arrayWithArray:[self.context executeFetchRequest:request error:&error]];
                 if(error) {
                     [self handleError:error andDescription:@"Core data problem"];
                 }
-
-                
+ 
                 id entity;
                 if ([array count] > 0) {
                     
@@ -363,13 +370,10 @@ static NSMutableDictionary *synchingTablesDictionary;
                     entity = [array objectAtIndex:0];
                     int entityTimestampModified =  [[entity valueForKey:@"timestampModified"] intValue];
                     
-                    
-                    
                     if(entityTimestampModified > [[item valueForKey:@"timestampModified"] intValue]) {
                         // we have newer data on phone: do not override data
                         continue;
                     }
-                    
                     // TODO: delete older objects
                 } else {
                     // insert new data
@@ -385,7 +389,6 @@ static NSMutableDictionary *synchingTablesDictionary;
                 
                 NSArray * fields = self.syncedTableFields;
 
-                
                 for(NSString * field in fields) {
                     if([field rangeOfString:@"datetime"].location != NSNotFound) {
                         [entity setValue:[format dateFromString:((NSString *)[item valueForKey:field])] forKey:field]; // special operations
@@ -432,6 +435,17 @@ static NSMutableDictionary *synchingTablesDictionary;
 }
 
 
+-(void) addMultipartData: (NSData *) data
+                 andName: (NSString *) name
+             andFileName: (NSString *) fileName
+             andMimeType: (NSString *) mimeType
+{
+    
+    NSDictionary * dictionary = @{@"data":data, @"name":name, @"fileName":fileName, @"mimeType":mimeType};
+    
+    [self.multipartDataArray addObject:dictionary];
+}
+
 
 -(void) sendNextNewDataToServer {
     
@@ -446,6 +460,8 @@ static NSMutableDictionary *synchingTablesDictionary;
         
     } else {
         
+        [self.multipartDataArray removeAllObjects]; // clear multipart data - it request shouls reset any data
+        
         self.currentSyncIndex++; // for use with messages like: Syncing 1 of 10 items
         
         NSDateFormatter *format = [[NSDateFormatter alloc] init];
@@ -459,33 +475,42 @@ static NSMutableDictionary *synchingTablesDictionary;
         NSMutableArray * fields = [NSMutableArray arrayWithArray:self.syncedTableFields];
         [fields addObject:@"timestampModified"];
         [fields addObject:@"timestampInserted"];
-
         
+        
+        
+        NSLog(@"FIELDS!!!! %@", fields);
+        
+
         [entityDictionary setValue:[entity valueForKey:@"is_Deleted"] forKey:@"isDeleted"];
         
-        NSLog(@"FIELDS=======>%@", fields);
         
         for (NSString * field in fields) {
-            
+            NSLog(@"==>%@", field);
             if ([field rangeOfString:@"datetime"].location != NSNotFound) {
+                NSLog(@"date detected value=%@", [format stringFromDate:[entity valueForKey:field]]);
                 [entityDictionary setValue:[format stringFromDate:[entity valueForKey:field]] forKey:field];
+                [entityDictionary setValue:@"mona" forKey:[NSString stringWithFormat:@"x_%@", field]];
             } else {
                 id newValue = [entity valueForKey:field];
                 if (newValue == nil) {
                     [entityDictionary setValue:[NSNull null] forKey:field];
+                    NSLog(@"null detected");
                 } else {
                     [entityDictionary setValue:newValue forKey:field];
+                    NSLog(@"value OK");
                 }
             }
         }
+        
         [self beforeSendToServer:entityDictionary andEntity:entity];
         
-        NSMutableArray * multipartData = [entityDictionary objectForKey:@"multipartData"];
-        [entityDictionary removeObjectForKey:@"multipartData"];
+//        NSMutableArray * multipartData = [entityDictionary objectForKey:@"multipartData"];
+//        [entityDictionary removeObjectForKey:@"multipartData"];
         
         
         NSString * jsonString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:entityDictionary options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
         
+        NSLog(@"%@", jsonString);
         
         NSMutableDictionary *params = [self getAdditionalPostParams];
         [params setObject:jsonString forKey:@"json"];
@@ -498,30 +523,26 @@ static NSMutableDictionary *synchingTablesDictionary;
             if (remoteId>0) {
                 [params setObject:((NSNumber *) remoteIdObj) forKey:@"remoteId"];
             }
-            
         }
-        
-
         
         AFHTTPClient *client = [[AFHTTPClient alloc] initWithBaseURL:
                                 [NSURL URLWithString:self.serverUrl]];
         
-//        NSMutableURLRequest *request = [[AFHTTPClient sharedClient] multipartFormRequestWithMethod:@"POST" path:@"/upload.php" parameters:nil constructingBodyWithBlock: ^(id <AFMultipartFormData>formData) {
-//            [formData appendPartWithFileData:data mimeType:@"image/jpeg" name:@"attachment"];
-//        }];
-//
-        
-        NSLog(@"Fetch URL: server=%@, fetcherScript=%@", self.serverUrl, self.serverFetcherScript);
-        NSLog(@"Params = %@", params);
+        if(self.outputCommunicationContentToConsole) {
+            //NSLog(@"saveData URL: server=%@, getScript=%@", self.serverUrl, self.serverReceiverScript);
+            NSLog(@"Params = %@", params);
+        }
         
         NSURLRequest *postRequest = [client multipartFormRequestWithMethod:@"POST" path:[NSString stringWithFormat:self.serverReceiverScript, self.className] parameters: params constructingBodyWithBlock:^(id <AFMultipartFormData>formData){
-            int i=0;
-            for (NSData * data in multipartData) {
+
+            for (NSDictionary * dic in self.multipartDataArray) {
+                NSLog(@"multipart file detected");
                 //[formData appendPartWithFileData:data mimeType:@"image/jpeg" name:@"attachment"];
-                [formData appendPartWithFileData:data name:[NSString stringWithFormat:@"%d", i] fileName:[NSString stringWithFormat:@"img_%i.png", i] mimeType:@"image/png"];
-                i++;
+                [formData appendPartWithFileData: dic[@"data"]
+                                            name: dic[@"name"]
+                                        fileName: dic[@"fileName"]
+                                        mimeType: dic[@"mimeType"]];
             }
-            
         }];
         
         
@@ -538,14 +559,14 @@ static NSMutableDictionary *synchingTablesDictionary;
                                                                  options: NSJSONReadingMutableContainers
                                                                    error: &error];
             
-            if(error) {
+            if (error) {
                 [self handleError:error andDescription:text];
                 [self.delegate onSynchronizationError:self];
                 return;
             }
             
             
-            if([[JSON valueForKey:@"hasError"] boolValue] == YES) {
+            if ([[JSON valueForKey:@"hasError"] boolValue] == YES) {
                 [self handleError:nil andDescription:[JSON valueForKey:@"errorMessage"]];
             } else {
                 
@@ -561,7 +582,6 @@ static NSMutableDictionary *synchingTablesDictionary;
                 SEL selector = NSSelectorFromString(@"afterUpdate");
                 if([entity respondsToSelector:selector]) {
                     [entity performSelector: selector];
-
                 }
                 
                 // keep only newest row with newest datetime modified data
@@ -572,15 +592,10 @@ static NSMutableDictionary *synchingTablesDictionary;
                         [self.context deleteObject:[array objectAtIndex:i]];
                         //}
                     }
-                }
-               
-                
-                
+                } 
             }
             
-            
             [self updateServerTimestamp:[[JSON valueForKey:@"timestampServer"] intValue]];
-            
             [self sendNextNewDataToServer];
             
         } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
@@ -605,7 +620,6 @@ static NSMutableDictionary *synchingTablesDictionary;
     
     NSString * predicateString = @"remoteId < 1 or isDirty = YES";
     
-//    NSString * clientNewDataPredicate = [self.classSettings objectForKey:@"clientNewDataPredicate"];
     if (self.clientNewDataPredicate) {
         predicateString =  [NSString stringWithFormat:@"(%@) AND (%@)", predicateString, self.clientNewDataPredicate];
     }
@@ -617,7 +631,6 @@ static NSMutableDictionary *synchingTablesDictionary;
     
     if (error) {
         [self handleError:error andDescription:nil];
-        
         return;
     }
     
