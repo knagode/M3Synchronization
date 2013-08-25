@@ -168,6 +168,11 @@
     return cars;
 }
 
+-(void) testSendMultiparFile {
+    //STFail(@"Test fail?");
+    // TODO: implementation needed!
+}
+
 
 -(void) testTimezones {
     
@@ -180,8 +185,6 @@
     int diff = abs(clientTime - serverTime);
     
     STAssertTrue(diff < 20 , [NSString stringWithFormat:@"time stamps are not equal. Diff: %d", serverTime-clientTime]);
-    
-    
 }
 
 
