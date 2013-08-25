@@ -6,10 +6,10 @@ Client and server synchronization of database tables. This code is for OBJC+Core
 <h3>Functionalities</h3>
 - <b>Sync client and server database table so client and server both have same values</b>
 - Class knows how to resolve merge conflicts - if same row is modified on server and client only the newest one will be used
-- Class in reliable even in low network quality - it automatically detects redundant data and corrects it
+- Class in reliable even in low network quality - it automatically detects redundant data/double sent data and fix it
 - It is easy to send files (e.g. photos) to server
-- It is possible to easily send nested data together (e.g. News + NewsComment)
-- With predicates it is possible to filter which rows will be sent to server (You can send only rows which will not change in the near future)
+- <a href="https://github.com/knagode/M3Synchronization/wiki#custom-json-for-synchronization">It is possible to easily send nested data together</a> (e.g. News + NewsComment)
+- <a href="https://github.com/knagode/M3Synchronization/wiki#predicates">With predicates it is possible to filter which rows will be sent to server (You can send only rows which will not change in the near future)
 - You can easily connect it with custom user athentication systems - you can pass additional POST params in every request to your server
 - When user will register, server will return all data but next time just rows that have been changed
 
@@ -17,9 +17,9 @@ Client and server synchronization of database tables. This code is for OBJC+Core
 <pre>
    M3Synchronization * syncEntity = [[M3Synchronization alloc] initForClass: @"Car"
                                                                   andContext: context
-                                                                andServerUrl: kWebsiteUrl
-                                                 andServerReceiverScriptName: kServerReceiverScript
-                                                  andServerFetcherScriptName: kServerFetcherScript
+                                                                andServerUrl: @"https://yourserver.tld"
+                                                 andServerReceiverScriptName: @"/save.php"
+                                                  andServerFetcherScriptName: @"/get.php"
                                                         ansSyncedTableFields:@[@"licenceNumber", @"manufacturer", @"model"]
                                                         andUniqueTableFields:@[@"licenceNumber"]];
                                                 
