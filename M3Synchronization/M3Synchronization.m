@@ -476,10 +476,6 @@ static NSMutableDictionary *synchingTablesDictionary;
         [fields addObject:@"timestampModified"];
         [fields addObject:@"timestampInserted"];
         
-        
-        
-        NSLog(@"FIELDS!!!! %@", fields);
-        
 
         [entityDictionary setValue:[entity valueForKey:@"is_Deleted"] forKey:@"isDeleted"];
         
