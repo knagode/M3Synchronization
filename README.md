@@ -72,3 +72,15 @@ Feel free to ask if you need any help or more detailed instructions about server
 <h1>Android support?</h1>
 Contact me at <a href="mailto:klemen.nagode@gmail.com">klemen.nagode@gmail.com</a> if you need Android client side. I already developed Android class but have to make it more portable before publishing it. I would be glad to share it with you if you are in need ;)
 
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-31956935-2', 'github.com');
+  ga('send', 'pageview');
+
+</script>
+
