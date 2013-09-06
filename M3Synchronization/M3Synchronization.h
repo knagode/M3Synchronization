@@ -16,13 +16,6 @@
 
 @end
 
-//@protocol SynchronizationEntityEventHandler <NSObject>
-//
-//-(void) onSynchronizationComplete: (id) entity;
-//-(void) onSynchronizationError: (id) entity;
-//
-//@end
-
 
 @interface M3Synchronization : NSObject
 
