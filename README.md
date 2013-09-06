@@ -72,3 +72,4 @@ Feel free to ask if you need any help or more detailed instructions about server
 <h1>Android support?</h1>
 Contact me at <a href="mailto:klemen.nagode@gmail.com">klemen.nagode@gmail.com</a> if you need Android client side. I already developed Android class but have to make it more portable before publishing it. I would be glad to share it with you if you are in need ;)
 
+
