@@ -164,7 +164,10 @@ static NSMutableDictionary *synchingTablesDictionary;
             [[M3Synchronization getSynchingTableDictionary] removeObjectForKey:self.className];
             
             self.isSyncing = NO;
-            [self.delegate onSynchronizationError:self];
+            if(self.delegate && [self.delegate respondsToSelector:@selector(onSynchronizationError:)]) {
+                [self.delegate onSynchronizationError:self];
+            }
+            
             // the table is already synching, do not synch again until the previous instance is done
         } else {
             [[M3Synchronization getSynchingTableDictionary] setObject:self.className forKey:self.className];
@@ -235,7 +238,7 @@ static NSMutableDictionary *synchingTablesDictionary;
     }
     
 
-    return [[NSMutableDictionary alloc] initWithDictionary:self.additionalPostParamsDictionary copyItems:YES];
+    return [[NSMutableDictionary alloc] initWithDictionary:self.additionalPostParamsDictionary];
 }
 
 
@@ -277,8 +280,9 @@ static NSMutableDictionary *synchingTablesDictionary;
             
             [self handleError:error andDescription:text];
             
-            [self.delegate onSynchronizationError:self];
-            
+            if(self.delegate && [self.delegate respondsToSelector:@selector(onSynchronizationError:)]) {
+                [self.delegate onSynchronizationError:self];
+            }
             return;
         }
         
@@ -432,6 +436,9 @@ static NSMutableDictionary *synchingTablesDictionary;
         NSLog(@"%@", [error localizedDescription]);
         [self handleError:error andDescription:nil];
     }];
+    
+    NSLog(@"self.delegate = %@", self.delegate);
+    NSLog(@"self.delegate class = %@", [self.delegate class]);
 }
 
 
@@ -453,7 +460,7 @@ static NSMutableDictionary *synchingTablesDictionary;
         
         [[M3Synchronization getSynchingTableDictionary] removeObjectForKey:self.className];
         
-        if ([self.delegate respondsToSelector:@selector(onSynchronizationComplete:)]) {
+        if (self.delegate && [self.delegate respondsToSelector:@selector(onSynchronizationComplete:)]) {
             self.isSyncing = NO;
             [self.delegate onSynchronizationComplete:self];
         }
@@ -557,7 +564,10 @@ static NSMutableDictionary *synchingTablesDictionary;
             
             if (error) {
                 [self handleError:error andDescription:text];
-                [self.delegate onSynchronizationError:self];
+                if (self.delegate && [self.delegate respondsToSelector:@selector(onSynchronizationError:)]) {
+                    [self.delegate onSynchronizationError:self];
+                }
+                
                 return;
             }
             
@@ -649,7 +659,10 @@ static NSMutableDictionary *synchingTablesDictionary;
     [self.itemsToSync removeAllObjects];
     self.itemsToSync = nil;
     
-    [self.delegate onSynchronizationError:self];
+    if (self.delegate && [self.delegate respondsToSelector:@selector(onSynchronizationError:)]) {
+        [self.delegate onSynchronizationError:self];
+    }
+    
     
     [self onError:error andDescription:description];
 }
@@ -681,7 +694,8 @@ static NSMutableDictionary *synchingTablesDictionary;
 
 -(void) dealloc
 {
-    self.delegate = nil;
+    self.delegate = nil; // IMPORTANT: since delegate is strong in order that it stays in memory until synchronization is completed - we have to set it to nil when entity is deallocated. If
+    NSLog(@"M3Synchronization was deallocated");
 }
 
 @end

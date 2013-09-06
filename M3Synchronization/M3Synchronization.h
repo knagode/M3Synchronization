@@ -28,7 +28,7 @@
 
 //@property (nonatomic, strong) NSDictionary * classSettings;
 @property (nonatomic, copy) NSString * className;
-@property (nonatomic, assign) id<SynchronizationEntityEventHandler> delegate;
+@property (nonatomic, strong) id<SynchronizationEntityEventHandler> delegate; // Important: if delegate is set we want to make shure that delegate stays in the memory until onComplete/error methods are called. In other case it could easily happen that onComplete is never called
 
 @property (nonatomic) int countItemsToSync;
 @property (nonatomic) int countModifiedItemsFromServer;
@@ -53,7 +53,11 @@
 -(void) getModifiedDataFromServer;
 -(void) sendNewDataToServer;
 
-
+/* if you want to attach multipart data, use this method */
+-(void) addMultipartData: (NSData *) data
+                 andName: (NSString *) name
+             andFileName: (NSString *) fileName
+             andMimeType: (NSString *) mimeType;
 
 
 @end
