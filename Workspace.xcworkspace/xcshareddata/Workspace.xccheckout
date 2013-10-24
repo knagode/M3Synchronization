@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>8D94FC95-04CA-4121-8311-E9B9740F9A5A</string>
+	<key>IDESourceControlProjectName</key>
+	<string>Workspace</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>DFB12D12-5614-4EFD-9A0C-09FED4AEDD05</key>
+		<string>https://github.com/AFNetworking/AFNetworking.git</string>
+		<key>E4F716E3-8F6B-4B73-8760-47D9B489A3E5</key>
+		<string>https://github.com/knagode/M3Synchronization.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>Workspace.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>DFB12D12-5614-4EFD-9A0C-09FED4AEDD05</key>
+		<string>../Dependancies/AFNetworking</string>
+		<key>E4F716E3-8F6B-4B73-8760-47D9B489A3E5</key>
+		<string>..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/knagode/M3Synchronization.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>E4F716E3-8F6B-4B73-8760-47D9B489A3E5</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>DFB12D12-5614-4EFD-9A0C-09FED4AEDD05</string>
+			<key>IDESourceControlWCCName</key>
+			<string>AFNetworking</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>E4F716E3-8F6B-4B73-8760-47D9B489A3E5</string>
+			<key>IDESourceControlWCCName</key>
+			<string>M3Synchronization</string>
+		</dict>
+	</array>
+</dict>
+</plist>
