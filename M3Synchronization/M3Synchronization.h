@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "NSManagedObject+markAsDirty.h"
 
-@protocol SynchronizationEntityEventHandler <NSObject>
+@protocol M3SynchronizationEventHandler <NSObject>
 
 -(void) onSynchronizationComplete: (id) entity;
 -(void) onSynchronizationError: (id) entity;
@@ -21,7 +21,7 @@
 
 //@property (nonatomic, strong) NSDictionary * classSettings;
 @property (nonatomic, copy) NSString * className;
-@property (nonatomic, strong) id<SynchronizationEntityEventHandler> delegate; // Important: if delegate is set we want to make shure that delegate stays in the memory until onComplete/error methods are called. In other case it could easily happen that onComplete is never called
+@property (nonatomic, strong) id<M3SynchronizationEventHandler> delegate; // Important: if delegate is set we want to make shure that delegate stays in the memory until onComplete/error methods are called. In other case it could easily happen that onComplete is never called
 
 @property (nonatomic) int countItemsToSync;
 @property (nonatomic) int countModifiedItemsFromServer;
@@ -40,6 +40,9 @@
       andServerFetcherScriptName: (NSString *) serverFetcherScript
             ansSyncedTableFields: (NSArray *) syncedTableFields
             andUniqueTableFields: (NSArray *) uniqueTableFields;
+
+
+-(id) initForClassFromJsonConfiguration: (NSString *) className;
 
 
 -(void) sync;

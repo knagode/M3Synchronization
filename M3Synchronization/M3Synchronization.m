@@ -102,30 +102,71 @@ static NSMutableDictionary *synchingTablesDictionary;
     return self;
 }
 
-//-(id) getJsonFromFile: (NSString *) file
-//{
-//    NSError *error;
-//    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
-//    
-//    NSString *filePath = [bundle pathForResource:@"syncSpecifications" ofType:@"json"];
-//    NSString *jsonString = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:&error];
-//    
-//    if(error) {
-//        NSLog(@"%@", error);
-//    }
-//    
-//    
-//    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-//    NSDictionary *results = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error];
-//    
-//    if(error) {
-//        NSLog(@"%@", error);
-//    }
-//    
-//    //NSLog(@"%@", results);
-//    
-//    return results;
-//}
+
+-(id) initForClassFromJsonConfiguration: (NSString *) className
+{
+    NSDictionary * json = [self getJsonFromFile:@"SyncConfiguration"];
+    
+    
+    NSDictionary * jsonEntity = [[json objectForKey:@"entities"] objectForKey:className];
+    
+    
+    
+    if (self = [self initForClass:className
+                       andContext:[NSManagedObjectContext defaultContext]
+                     andServerUrl:[json objectForKey:@"serverUrl"]
+      andServerReceiverScriptName:[json objectForKey:@"saveDataScript"]
+       andServerFetcherScriptName:[json objectForKey:@"getDataScript"]
+             ansSyncedTableFields:[jsonEntity objectForKey:@"columns"]
+             andUniqueTableFields:[jsonEntity objectForKey:@"uniqueColumns"]])
+    {
+        NSString * className = [json objectForKey:@"additionalPostParametersClassName"];
+        NSString * methodName = [json objectForKey:@"additionalPostParametersMethodName"];
+        
+        if([className length] > 0) {
+            
+            Class class = NSClassFromString(className);
+            SEL selector = NSSelectorFromString(methodName);
+            
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+            self.additionalPostParamsDictionary = [class performSelector:selector];
+#pragma clang diagnostic pop
+            
+        }
+        
+    }
+    
+    return self;
+    
+    
+}
+
+
+-(id) getJsonFromFile: (NSString *) file
+{
+    NSError *error;
+    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+    
+    NSString *filePath = [bundle pathForResource:file ofType:@"json"];
+    NSString *jsonString = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:&error];
+    
+    if(error) {
+        NSLog(@"%@", error);
+    }
+    
+    
+    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *results = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error];
+    
+    if(error) {
+        NSLog(@"%@", error);
+    }
+    
+    //NSLog(@"%@", results);
+    
+    return results;
+}
 
 -(NSString *) getIsSyncedWhenActivatedKey {
     return [@"isSyncedWhenActivated_" stringByAppendingString:self.className];
@@ -403,7 +444,8 @@ static NSMutableDictionary *synchingTablesDictionary;
                 
 
                 // TODO: do we need to save every cycle or can we save at the end?
-                [self.context save:nil]; // TODO: handle error
+//                [self.context save:nil]; // TODO: handle error
+                [AppDelegate saveContext];
 
                 // perform action on NSManagedObjectEntity it it has afterUpdate method (PHP Doctrine style)
                 SEL selector = NSSelectorFromString(@"afterUpdate");
