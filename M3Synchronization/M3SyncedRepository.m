@@ -80,7 +80,19 @@
     NSString * valueForKey = [self getRepositoryItemValueForKey:key];
     
     NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
-    [dateFormat setDateFormat:@"Y-d-m H:i:s"];
+    [dateFormat setDateFormat:@"yyyy-MM-dd"];
+    
+    if(valueForKey != nil) {
+        return [dateFormat dateFromString:valueForKey];
+    }
+    
+    return defaultValue;
+}
++(NSDate *) getDatetime:(NSString *) key defaultValue:(NSDate *) defaultValue {
+    NSString * valueForKey = [self getRepositoryItemValueForKey:key];
+    
+    NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+    [dateFormat setDateFormat:@"yyyy-MM-dd hh:mm:s"];
     
     if(valueForKey != nil) {
         return [dateFormat dateFromString:valueForKey];
@@ -100,9 +112,23 @@
     return defaultValue;
 }
 
-+(void) setDate:(NSDate *) value forKey:(NSString *) key {
++(void) setDatetime:(NSDate *) value forKey:(NSString *) key {
+
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"Y-d-m H:i:s"];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd hh:mm:s"];
+    
+    [M3SyncedRepository setString:[dateFormatter stringFromDate:value] forKey:key];
+}
++(void) setDate:(NSDate *) value forKey:(NSString *) key {
+    
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd"];
+    
+    NSLog(@"store to db %@ original: %@", [dateFormatter stringFromDate:value], value );
     
     [M3SyncedRepository setString:[dateFormatter stringFromDate:value] forKey:key];
 }

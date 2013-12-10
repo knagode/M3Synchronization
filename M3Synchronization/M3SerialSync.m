@@ -44,10 +44,10 @@ static BOOL isSyncing = NO;
         
         
         for (NSString * name in entityNames) {
-            [self.itemsToSyncAll addObject:[[M3Synchronization alloc] initForClassFromJsonConfiguration:name]];
+            M3Synchronization * entity = [[M3Synchronization alloc] initForClassFromJsonConfiguration:name];
+            entity.delegate = self;
+            [self.itemsToSyncAll addObject:entity];
         }
-        
-        
     }
     return self;
 }
@@ -62,7 +62,6 @@ static BOOL isSyncing = NO;
     if ([self.itemsToSync count]) {
         M3Synchronization * syncEntity = [self.itemsToSync objectAtIndex:0];
         [self.itemsToSync removeObjectAtIndex:0];
-        
         [syncEntity sync];
     } else {
         NSLog(@"WARNING: synchronizeNext should not be called if array is empty");
@@ -81,7 +80,7 @@ static BOOL isSyncing = NO;
 
         return;
     }
-    [self.itemsToSyncAll removeAllObjects];
+    [self.itemsToSync removeAllObjects];
     
     self.countItemsToSync = 0;
     self.countModifiedItemsFromServer = 0;
@@ -116,20 +115,20 @@ static BOOL isSyncing = NO;
     } else {
         
         isSyncing = NO;
-        if (self.delegate && [self.delegate respondsToSelector:@selector(onSynchronizationComplete)]) {
+        if (self.delegate && [self.delegate respondsToSelector:@selector(onSerialSyncComplete)]) {
             [self.delegate onSerialSyncComplete];
         }
     
     }
 }
 
--(void) onSerialSyncError:(id)entity {
+-(void) onSynchronizationError:(id)entity {
     //[[NSNotificationCenter defaultCenter] postNotificationName:kSynchronizationError object:nil];
     isSyncing = NO;
 //    SynchronizationEntity * e = (SynchronizationEntity *) entity;
 //    NSLog(@"entity ERROR: %@", e.className);
 
-    if(self.delegate && [self.delegate respondsToSelector:@selector(onSynchronizationError:)]) {
+    if(self.delegate && [self.delegate respondsToSelector:@selector(onSerialSyncError:)]) {
         [self.delegate onSerialSyncError:nil];
     }
 }

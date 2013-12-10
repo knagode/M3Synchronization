@@ -17,6 +17,7 @@
 +(int) getInt:(NSString *) key defaultValue:(int) defaultValue;
 
 +(void) setDate:(NSDate *) value forKey:(NSString *) key;
++(void) setDatetime:(NSDate *) value forKey:(NSString *) key;
 +(void) setBOOL:(BOOL) value forKey:(NSString *) key;
 +(void) setDouble:(double) value forKey:(NSString *) key;
 +(void) setString:(NSString *) value forKey:(NSString *) key;
