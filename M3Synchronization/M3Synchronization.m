@@ -9,6 +9,7 @@
 #import "M3Synchronization.h"
 #import "AFHTTPClient.h"
 #import "AFHTTPRequestOperation.h"
+#import "M3RegistrationManager.h"
 
 
 #define kSynchronizationEntityOutputCommunication 1

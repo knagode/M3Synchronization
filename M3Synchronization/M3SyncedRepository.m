@@ -114,7 +114,7 @@
 
 +(void) setDatetime:(NSDate *) value forKey:(NSString *) key {
 
-    NSCalendar *calendar = [NSCalendar currentCalendar];
+    //NSCalendar *calendar = [NSCalendar currentCalendar];
 
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyy-MM-dd hh:mm:s"];
@@ -123,7 +123,7 @@
 }
 +(void) setDate:(NSDate *) value forKey:(NSString *) key {
     
-    NSCalendar *calendar = [NSCalendar currentCalendar];
+    //NSCalendar *calendar = [NSCalendar currentCalendar];
     
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"yyyy-MM-dd"];
