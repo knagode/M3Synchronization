@@ -16,29 +16,17 @@
 
 +(RepositoryItem *) getRepositoryItemForKey:(NSString *) key
 {
-    AppDelegate * appdelegate = [[UIApplication sharedApplication] delegate];
-    NSManagedObjectContext * context = [appdelegate managedObjectContext];
-    NSError * error;
-    
-    NSFetchRequest *request = [[NSFetchRequest alloc] init];
-    NSEntityDescription * entity = [NSEntityDescription entityForName:@"RepositoryItem" inManagedObjectContext:context];
-    [request setEntity:entity];
-    
     NSPredicate *selectItemPredicate = [NSPredicate predicateWithFormat:@"uniqueKey == %@",key];
-    [request setPredicate:selectItemPredicate];
     
-    NSArray * array = [context executeFetchRequest:request error:&error];
-    
-    if([array count]>0) {
-        return [array objectAtIndex:0];
-    }
-    
-    return nil;
+    return [RepositoryItem findFirstWithPredicate:selectItemPredicate];
 }
+
 +(NSString *) getRepositoryItemValueForKey:(NSString *) key
 {
     RepositoryItem * repositoryItem = [self getRepositoryItemForKey:key];
     if (repositoryItem) {
+        NSLog(@"%@", key);
+        NSLog(@"repository item %@ = %@", key, repositoryItem.value);
         return repositoryItem.value;
     }
     return nil;
@@ -164,14 +152,8 @@
         userDefaultsAlreadyExists = YES;
     }
     
-    
-    AppDelegate * appdelegate = [[UIApplication sharedApplication] delegate];
-    NSManagedObjectContext * context = [appdelegate managedObjectContext];
-
-    
     if(!userDefaultsAlreadyExists) {
-        
-        RepositoryItem * repositoryItem = [NSEntityDescription insertNewObjectForEntityForName:@"RepositoryItem" inManagedObjectContext:context];
+        RepositoryItem * repositoryItem = [RepositoryItem createEntity];
         repositoryItem.uniqueKey = key;
         repositoryItem.value = value;
         [repositoryItem markAsJustInserted];
@@ -181,8 +163,6 @@
         [AppDelegate saveContext];
         
         [[[M3Synchronization alloc] initForClassFromJsonConfiguration:@"RepositoryItem"] sync]; // SyncConfiguration.json should exist
-        
-
     }
     
     

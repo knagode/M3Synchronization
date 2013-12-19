@@ -55,8 +55,6 @@ static NSMutableDictionary *synchingTablesDictionary;
     return _multipartDataArray;
 }
 
-
-
 -(id)               initForClass: (NSString *) className
                       andContext: (NSManagedObjectContext *) context
                     andServerUrl: (NSString *) serverUrl
