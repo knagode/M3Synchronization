@@ -25,8 +25,6 @@
 {
     RepositoryItem * repositoryItem = [self getRepositoryItemForKey:key];
     if (repositoryItem) {
-        NSLog(@"%@", key);
-        NSLog(@"repository item %@ = %@", key, repositoryItem.value);
         return repositoryItem.value;
     }
     return nil;
@@ -141,7 +139,7 @@
     RepositoryItem * repositoryItem = [self getRepositoryItemForKey:key];
     
     if(repositoryItem) {
-        NSLog(@"Repository item %@",repositoryItem.value);
+//        NSLog(@"Repository item %@",repositoryItem.value);
         if([repositoryItem.value isEqualToString:value]) {
             valueIsChanged = NO;
         } else {
