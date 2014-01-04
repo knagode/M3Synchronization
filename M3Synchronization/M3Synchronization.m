@@ -70,17 +70,17 @@ static NSMutableDictionary *synchingTablesDictionary;
 //            jsonFileName = @"syncSpecifications";
 //        }
         
-        if (!serverReceiverScript) {
-            serverReceiverScript = @"/mobile_scripts/getLastChangesDynamic.php?class=%@";
-        }
-        
-        if (!serverFetcherScript) {
-            serverFetcherScript = @"/mobile_scripts/syncDynamic.php?class=%@";
-        }
-        
-        if (!serverUrl) {
-            serverUrl = @"http://synctest.talcho.com";
-        }
+//        if (!serverReceiverScript) {
+//            serverReceiverScript = @"/mobile_scripts/getLastChangesDynamic.php?class=%@";
+//        }
+//        
+//        if (!serverFetcherScript) {
+//            serverFetcherScript = @"/mobile_scripts/syncDynamic.php?class=%@";
+//        }
+//        
+//        if (!serverUrl) {
+//            serverUrl = @"http://synctest.talcho.com";
+//        }
         
         
         //NSDictionary *json = [self getJsonFromFile:jsonFileName];
@@ -108,7 +108,7 @@ static NSMutableDictionary *synchingTablesDictionary;
     
     
     NSDictionary * jsonEntity = [[json objectForKey:@"entities"] objectForKey:className];
-    
+    NSLog(@"%@", jsonEntity);
     
     
     if (self = [self initForClass:className
@@ -293,13 +293,15 @@ static NSMutableDictionary *synchingTablesDictionary;
         [postParams setObject:[NSNumber numberWithInt:[self lastSyncWithServerTimestamp]] forKey:@"timestampLastSync"];
     }
     
-    NSString *url = [NSString stringWithFormat:@"%@%@%@",self.serverUrl,self.serverReceiverScript, self.className];
+    NSString *url = [NSString stringWithFormat:@"%@%@%@",self.serverUrl,self.serverFetcherScript, self.className];
     NSLog(@"Fetch URL: %@", url);
     
     [manager POST:url
 parameters:postParams
 success:^(AFHTTPRequestOperation *operation, id responseObject) {
     
+    
+        NSLog(@"ResponseObject = %@", responseObject);
         NSDictionary *JSON;
         NSError *error;
         if ([responseObject isKindOfClass:[NSData class]]) {
