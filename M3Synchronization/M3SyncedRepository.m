@@ -14,6 +14,18 @@
 
 @implementation M3SyncedRepository
 
+static BOOL manualSync;
+
++ (BOOL)manualSync
+{
+    return manualSync;
+}
+
++ (void)setManualSync:(BOOL)value
+{
+    manualSync = value;
+}
+
 +(RepositoryItem *) getRepositoryItemForKey:(NSString *) key
 {
     NSPredicate *selectItemPredicate = [NSPredicate predicateWithFormat:@"uniqueKey == %@",key];
@@ -159,8 +171,9 @@
     
     if(valueIsChanged) {
         [AppDelegate saveContext];
-
-        [[[M3Synchronization alloc] initForClassFromJsonConfiguration:@"RepositoryItem"] sync]; // SyncConfiguration.json should exist
+        if (![M3SyncedRepository manualSync]) {
+            [[[M3Synchronization alloc] initForClassFromJsonConfiguration:@"RepositoryItem"] sync]; // SyncConfiguration.json should exist
+        }
     }
     
     

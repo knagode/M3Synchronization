@@ -10,6 +10,10 @@
 
 @interface M3SyncedRepository : NSObject
 
+
++ (BOOL)manualSync;
++ (void)setManualSync:(BOOL)value;
+
 +(NSString *) getString:(NSString *) key defaultValue:(NSString *) defaultValue;
 +(BOOL) getBool:(NSString *) key defaultValue:(BOOL) defaultValue;
 +(double) getDouble:(NSString *) key defaultValue:(double) defaultValue;
