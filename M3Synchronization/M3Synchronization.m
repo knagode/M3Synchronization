@@ -293,10 +293,8 @@ static NSMutableDictionary *synchingTablesDictionary;
         [postParams setObject:[NSNumber numberWithInt:[self lastSyncWithServerTimestamp]] forKey:@"timestampLastSync"];
     }
     
-    NSLog(@"Fetch URL: server=%@, fetcherScript=%@", self.serverUrl, self.serverFetcherScript);
-    
-    
     NSString *url = [NSString stringWithFormat:@"%@%@%@",self.serverUrl,self.serverReceiverScript, self.className];
+    NSLog(@"Fetch URL: %@", url);
     
     [manager POST:url
 parameters:postParams
