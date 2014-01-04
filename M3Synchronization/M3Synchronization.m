@@ -301,17 +301,21 @@ static NSMutableDictionary *synchingTablesDictionary;
     [manager POST:url
 parameters:postParams
 success:^(AFHTTPRequestOperation *operation, id responseObject) {
-
-        NSString *text = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
-
-#if kSynchronizationEntityOutputCommunication
-        NSLog(@"response for class: %@: %@",self.className,  text);
-#endif
-        
-        
-        NSError * error;
-        NSDictionary * JSON = [NSJSONSerialization JSONObjectWithData: [text dataUsingEncoding:NSUTF8StringEncoding] options: NSJSONReadingMutableContainers
-                                                                error: &error];
+    
+        NSDictionary *JSON;
+        NSError *error;
+        if ([responseObject isKindOfClass:[NSData class]]) {
+            NSString *text = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+            
+    #if kSynchronizationEntityOutputCommunication
+            NSLog(@"response for class: %@: %@",self.className,  text);
+    #endif
+            JSON = [NSJSONSerialization JSONObjectWithData: [text dataUsingEncoding:NSUTF8StringEncoding]
+                                                   options: NSJSONReadingMutableContainers
+                                                     error: &error];
+        } else {
+            JSON = responseObject;
+        }
         
         if(error) {
 //            UIAlertView *alert = [[UIAlertView alloc]initWithTitle: @"ERRORS ON SERVER"
@@ -323,7 +327,7 @@ success:^(AFHTTPRequestOperation *operation, id responseObject) {
 //
 //            self.isSyncing = NO;
             
-            [self handleError:error andDescription:text];
+            [self handleError:error andDescription:[NSString stringWithFormat:@"%@", JSON]];
             
             if(self.delegate && [self.delegate respondsToSelector:@selector(onSynchronizationError:)]) {
                 [self.delegate onSynchronizationError:self];
@@ -599,15 +603,20 @@ success:^(AFHTTPRequestOperation *operation, id responseObject) {
                } success:^(AFHTTPRequestOperation *operation, id responseObject) {
                    // Print the response body in text
                    
-                   NSString *text = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
-                   
+                   NSDictionary *JSON;
                    NSError *error;
-                   NSDictionary *JSON = [NSJSONSerialization JSONObjectWithData: [text dataUsingEncoding:NSUTF8StringEncoding]
-                                                                        options: NSJSONReadingMutableContainers
-                                                                          error: &error];
+                   if ([responseObject isKindOfClass:[NSData class]]) {
+                       NSString *text = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+                    
+                       JSON = [NSJSONSerialization JSONObjectWithData: [text dataUsingEncoding:NSUTF8StringEncoding]
+                                                              options: NSJSONReadingMutableContainers
+                                                                error: &error];
+                   } else {
+                       JSON = responseObject;
+                   }
                    
                    if (error) {
-                       [self handleError:error andDescription:text];
+                       [self handleError:error andDescription:[NSString stringWithFormat:@"%@", JSON]];
                        if (self.delegate && [self.delegate respondsToSelector:@selector(onSynchronizationError:)]) {
                            [self.delegate onSynchronizationError:self];
                        }

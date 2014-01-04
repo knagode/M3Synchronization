@@ -159,7 +159,7 @@
     
     if(valueIsChanged) {
         [AppDelegate saveContext];
-        
+
         [[[M3Synchronization alloc] initForClassFromJsonConfiguration:@"RepositoryItem"] sync]; // SyncConfiguration.json should exist
     }
     
