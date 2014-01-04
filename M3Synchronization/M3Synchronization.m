@@ -7,7 +7,7 @@
 //
 
 #import "M3Synchronization.h"
-#import "AFHTTPClient.h"
+#import "AFHTTPRequestOperationManager.h"
 #import "AFHTTPRequestOperation.h"
 #import "M3RegistrationManager.h"
 
@@ -282,9 +282,9 @@ static NSMutableDictionary *synchingTablesDictionary;
 }
 
 
--(void) getModifiedDataFromServer {
-    
-    AFHTTPClient *client = [[AFHTTPClient alloc] initWithBaseURL: [NSURL URLWithString:self.serverUrl]];
+-(void) getModifiedDataFromServer
+{
+    AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
 
     NSMutableDictionary * postParams = [self getAdditionalPostParams];
     
@@ -295,7 +295,12 @@ static NSMutableDictionary *synchingTablesDictionary;
     
     NSLog(@"Fetch URL: server=%@, fetcherScript=%@", self.serverUrl, self.serverFetcherScript);
     
-    [client postPath:[NSString stringWithFormat:self.serverFetcherScript, self.className] parameters:postParams success:^(AFHTTPRequestOperation *operation, id responseObject) {
+    
+    NSString *url = [NSString stringWithFormat:@"%@%@%@",self.serverUrl,self.serverReceiverScript, self.className];
+    
+    [manager POST:url
+parameters:postParams
+success:^(AFHTTPRequestOperation *operation, id responseObject) {
 
         NSString *text = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
 
@@ -570,87 +575,83 @@ static NSMutableDictionary *synchingTablesDictionary;
                 }
             }
             
-            AFHTTPClient *client = [[AFHTTPClient alloc] initWithBaseURL:
-                                    [NSURL URLWithString:self.serverUrl]];
-            
             if(self.outputCommunicationContentToConsole) {
                 //NSLog(@"saveData URL: server=%@, getScript=%@", self.serverUrl, self.serverReceiverScript);
                 NSLog(@"Params = %@", params);
             }
+    
             
-            NSURLRequest *postRequest = [client multipartFormRequestWithMethod:@"POST" path:[NSString stringWithFormat:self.serverReceiverScript, self.className] parameters: params constructingBodyWithBlock:^(id <AFMultipartFormData>formData){
-                
-                for (NSDictionary * dic in self.multipartDataArray) {
-                    NSLog(@"multipart file detected");
-                    //[formData appendPartWithFileData:data mimeType:@"image/jpeg" name:@"attachment"];
-                    [formData appendPartWithFileData: dic[@"data"]
-                                                name: dic[@"name"]
-                                            fileName: dic[@"fileName"]
-                                            mimeType: dic[@"mimeType"]];
-                }
-            }];
+            AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
             
+            NSString *url = [NSString stringWithFormat:@"%@%@%@",self.serverUrl,self.serverReceiverScript, self.className];
             
-            AFHTTPRequestOperation *operation = [[AFHTTPRequestOperation alloc] initWithRequest:postRequest];
-            
-            
-            [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject) {
-                // Print the response body in text
-                
-                NSString *text = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
-                
-                NSError *error;
-                NSDictionary *JSON = [NSJSONSerialization JSONObjectWithData: [text dataUsingEncoding:NSUTF8StringEncoding]
-                                                                     options: NSJSONReadingMutableContainers
-                                                                       error: &error];
-                
-                if (error) {
-                    [self handleError:error andDescription:text];
-                    if (self.delegate && [self.delegate respondsToSelector:@selector(onSynchronizationError:)]) {
-                        [self.delegate onSynchronizationError:self];
-                    }
-                    
-                    return;
-                }
-                
-                
-                if ([[JSON valueForKey:@"hasError"] boolValue] == YES) {
-                    [self handleError:nil andDescription:[JSON valueForKey:@"errorMessage"]];
-                } else {
-                    
-                    int remoteId = [[JSON objectForKey:@"remoteId"] intValue];
-                    // check if items with same remoteId already exists and delete them! We do not want duplicates
-                    
-                    [entity setValue:[NSNumber numberWithInt:remoteId] forKey:@"remoteId"];
-                    [entity setValue:[NSNumber numberWithBool:NO] forKey:@"isDirty"]; // mark field as synced with server
-                    
-                    
-                    [self.context save:nil];
-                    
-                    SEL selector = NSSelectorFromString(@"afterUpdate");
-                    if([entity respondsToSelector:selector]) {
-                        [entity performSelector: selector];
-                    }
-                    
-                    // keep only newest row with newest datetime modified data
-                    NSArray * array = [self getEntitiesWithRemoteIdOrderedByTimestampModified:remoteId];
-                    if ([array count] > 1) {
-                        for(int i=1; i<[array count]; i++) {
-                            //if(![tmp isEqual: tmp]) { // leave only current entity, delete others
-                            [self.context deleteObject:[array objectAtIndex:i]];
-                            //}
-                        }
-                    }
-                }
-                
-                [self updateServerTimestamp:[[JSON valueForKey:@"timestampServer"] intValue]];
-                [self sendNextNewDataToServer];
-                
-            } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-                [self handleError:error andDescription:nil];
-            }];
-            
-            [client enqueueHTTPRequestOperation:operation];
+            [manager POST:url
+               parameters:params constructingBodyWithBlock:^(id <AFMultipartFormData>formData){
+                   
+                   for (NSDictionary * dic in self.multipartDataArray) {
+                       NSLog(@"multipart file detected");
+                       //[formData appendPartWithFileData:data mimeType:@"image/jpeg" name:@"attachment"];
+                       [formData appendPartWithFileData: dic[@"data"]
+                                                   name: dic[@"name"]
+                                               fileName: dic[@"fileName"]
+                                               mimeType: dic[@"mimeType"]];
+                   }
+               } success:^(AFHTTPRequestOperation *operation, id responseObject) {
+                   // Print the response body in text
+                   
+                   NSString *text = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+                   
+                   NSError *error;
+                   NSDictionary *JSON = [NSJSONSerialization JSONObjectWithData: [text dataUsingEncoding:NSUTF8StringEncoding]
+                                                                        options: NSJSONReadingMutableContainers
+                                                                          error: &error];
+                   
+                   if (error) {
+                       [self handleError:error andDescription:text];
+                       if (self.delegate && [self.delegate respondsToSelector:@selector(onSynchronizationError:)]) {
+                           [self.delegate onSynchronizationError:self];
+                       }
+                       
+                       return;
+                   }
+                   
+                   
+                   if ([[JSON valueForKey:@"hasError"] boolValue] == YES) {
+                       [self handleError:nil andDescription:[JSON valueForKey:@"errorMessage"]];
+                   } else {
+                       
+                       int remoteId = [[JSON objectForKey:@"remoteId"] intValue];
+                       // check if items with same remoteId already exists and delete them! We do not want duplicates
+                       
+                       [entity setValue:[NSNumber numberWithInt:remoteId] forKey:@"remoteId"];
+                       [entity setValue:[NSNumber numberWithBool:NO] forKey:@"isDirty"]; // mark field as synced with server
+                       
+                       
+                       [self.context save:nil];
+                       
+                       SEL selector = NSSelectorFromString(@"afterUpdate");
+                       if([entity respondsToSelector:selector]) {
+                           [entity performSelector: selector];
+                       }
+                       
+                       // keep only newest row with newest datetime modified data
+                       NSArray * array = [self getEntitiesWithRemoteIdOrderedByTimestampModified:remoteId];
+                       if ([array count] > 1) {
+                           for(int i=1; i<[array count]; i++) {
+                               //if(![tmp isEqual: tmp]) { // leave only current entity, delete others
+                               [self.context deleteObject:[array objectAtIndex:i]];
+                               //}
+                           }
+                       }
+                   }
+                   
+                   [self updateServerTimestamp:[[JSON valueForKey:@"timestampServer"] intValue]];
+                   [self sendNextNewDataToServer];
+                   
+               } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+                   [self handleError:error andDescription:nil];
+           }];
+        
         }
     }
 }
@@ -691,7 +692,7 @@ static NSMutableDictionary *synchingTablesDictionary;
 
 -(void) handleError: (NSError *) error andDescription: (NSString *) description
 {
-    NSLog(@"%@ %@", error.description, description);
+//    NSLog(@"%@ %@", error.description, description);
     
     
     self.isSyncing = NO;
