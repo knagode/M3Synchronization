@@ -55,10 +55,10 @@
     [moc setPersistentStoreCoordinator:psc];
     
     
-    NSDictionary * response = [self syncedRequest:[NSString stringWithFormat:@"%@mobile_scripts/unitTests/truncateDatabase.php", kUnitTestsWebsiteUrl] andPostData:[NSDictionary dictionaryWithObjectsAndKeys:@"testgmailcom", @"email", nil]];
+    NSDictionary * response = [self syncedRequest:[NSString stringWithFormat:@"%@mobile_scripts/unitTests/truncateDatabase.php", kUnitTestsWebsiteUrl] andPostData:[NSMutableDictionary dictionaryWithObjectsAndKeys:@"testgmailcom", @"email", nil]];
 
     
-    response = [self syncedRequest:[NSString stringWithFormat:@"%@mobile_scripts/createDevice.php", kUnitTestsWebsiteUrl] andPostData:[NSDictionary dictionaryWithObjectsAndKeys:@"testgmailcom", @"email", nil]];
+    response = [self syncedRequest:[NSString stringWithFormat:@"%@mobile_scripts/createDevice.php", kUnitTestsWebsiteUrl] andPostData:[NSMutableDictionary dictionaryWithObjectsAndKeys:@"testgmailcom", @"email", nil]];
     
     self.userDeviceId = [[response objectForKey:@"userDeviceId"] intValue];
     self.secureCode = [response objectForKey:@"secureCode"];
