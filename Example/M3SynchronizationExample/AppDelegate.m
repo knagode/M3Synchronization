@@ -31,19 +31,21 @@
     	[_managedObjectContext deleteObject:managedObject];
     }
     if (![_managedObjectContext save:&error]) {
-    	
+    	// display error?
     }
     
+    /* we will store some test data on our server */
     
     /* we manually create user with unique email + userDevice entity first */
-    NSDictionary * response = [self syncedRequest:[NSString stringWithFormat:@"%@/mobile_scripts/createDevice.php", kWebsiteUrl] andPostData:[NSDictionary dictionaryWithObjectsAndKeys: [NSString stringWithFormat:@"%f-example@mice3.it", [[NSDate date] timeIntervalSince1970]], @"email", nil]];
+    NSDictionary * response = [self syncedRequest:[NSString stringWithFormat:@"%@/mobile_scripts/createDevice.php", kWebsiteUrl] andPostData:[NSMutableDictionary dictionaryWithObjectsAndKeys: [NSString stringWithFormat:@"%f-example@mice3.it", [[NSDate date] timeIntervalSince1970]], @"email", nil]];
     
     /* we save user authentication params in userDefaults to access it later */
     [[NSUserDefaults standardUserDefaults] setValue:[response objectForKey:@"userDeviceId"] forKey:@"userDeviceId"];
     [[NSUserDefaults standardUserDefaults] setValue:[response objectForKey:@"secureCode"] forKey:@"secureCode"];
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"isActivated"]; // todo remove - this should not be part of our library
     
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"User Created" message: [NSString stringWithFormat:@"Use this URL to view/edit online version of data: %@/cars.php?userDeviceId=%@", kWebsiteUrl, [response objectForKey:@"userDeviceId"]] delegate: nil cancelButtonTitle: @"Ok" otherButtonTitles: nil];
+    /* show alert with server URL viewer/editor */
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle: @"User Created" message: [NSString stringWithFormat:@"Use this URL to view/edit online version of data: %@/cars.php?userDeviceId=%@ \n (URL was generated for this test run. We generate data inside [AppDelegate application] method)", kWebsiteUrl, [response objectForKey:@"userDeviceId"]] delegate: nil cancelButtonTitle: @"Ok" otherButtonTitles: nil];
     [alert show];
     
     
@@ -159,8 +161,32 @@
     if (coordinator != nil) {
         _managedObjectContext = [[NSManagedObjectContext alloc] init];
         [_managedObjectContext setPersistentStoreCoordinator:coordinator];
+        
+        // subscribe to change notifications
+        // If we work with multiple contexts: https://www.cocoanetics.com/2012/07/multi-context-coredata/
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_mocDidSaveNotification:) name:NSManagedObjectContextDidSaveNotification object:nil];
     }
     return _managedObjectContext;
+}
+- (void)_mocDidSaveNotification:(NSNotification *)notification
+{
+    NSManagedObjectContext *savedContext = [notification object];
+    
+    // ignore change notifications for the main MOC
+    if (_managedObjectContext == savedContext)
+    {
+        return;
+    }
+    
+    if (_managedObjectContext.persistentStoreCoordinator != savedContext.persistentStoreCoordinator)
+    {
+        // that's another database
+        return;
+    }
+    
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        [_managedObjectContext mergeChangesFromContextDidSaveNotification:notification];
+    });
 }
 
 // Returns the managed object model for the application.
@@ -211,6 +237,8 @@
          Lightweight migration will only work for a limited set of schema changes; consult "Core Data Model Versioning and Data Migration Programming Guide" for details.
          
          */
+        
+        
         NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
         abort();
     }    

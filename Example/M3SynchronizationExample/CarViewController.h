@@ -9,6 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "M3Synchronization.h"
 
-@interface CarViewController : UITableViewController <SynchronizationEntityEventHandler>
+@interface CarViewController : UITableViewController <M3SynchronizationEventHandler>
 
 @end

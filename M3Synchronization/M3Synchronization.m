@@ -9,7 +9,7 @@
 #import "M3Synchronization.h"
 #import "AFHTTPClient.h"
 #import "AFHTTPRequestOperation.h"
-#import "M3RegistrationManager.h"
+
 
 
 #define kSynchronizationEntityOutputCommunication 1
@@ -112,7 +112,7 @@ static NSMutableDictionary *synchingTablesDictionary;
     
     
     if (self = [self initForClass:className
-                       andContext:[NSManagedObjectContext defaultContext]
+                       andContext: [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType]
                      andServerUrl:[json objectForKey:@"serverUrl"]
       andServerReceiverScriptName:[json objectForKey:@"saveDataScript"]
        andServerFetcherScriptName:[json objectForKey:@"getDataScript"]
@@ -443,13 +443,16 @@ static NSMutableDictionary *synchingTablesDictionary;
                 
 
                 // TODO: do we need to save every cycle or can we save at the end?
-//                [self.context save:nil]; // TODO: handle error
-                [AppDelegate saveContext];
+                
+                [self saveContext];
 
                 // perform action on NSManagedObjectEntity it it has afterUpdate method (PHP Doctrine style)
                 SEL selector = NSSelectorFromString(@"afterUpdate");
                 if([entity respondsToSelector:selector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
                     [entity performSelector: selector];
+#pragma clang diagnostic pop
                 }
                 
                 
@@ -626,10 +629,13 @@ static NSMutableDictionary *synchingTablesDictionary;
                     
                     
                     [self.context save:nil];
-                    
+
                     SEL selector = NSSelectorFromString(@"afterUpdate");
                     if([entity respondsToSelector:selector]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
                         [entity performSelector: selector];
+#pragma clang diagnostic pop
                     }
                     
                     // keep only newest row with newest datetime modified data
@@ -686,7 +692,9 @@ static NSMutableDictionary *synchingTablesDictionary;
 }
 
 
-
+-(void) saveContext {
+    [self.context save:nil]; // TODO: handle error + make it merge more context together
+}
 
 
 -(void) handleError: (NSError *) error andDescription: (NSString *) description

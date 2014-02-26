@@ -9,6 +9,6 @@
 #import <SenTestingKit/SenTestingKit.h>
 #import "M3Synchronization.h"
 
-@interface M3SynchronizationTests : SenTestCase <SynchronizationEntityEventHandler>
+@interface M3SynchronizationTests : SenTestCase <M3SynchronizationEventHandler>
 
 @end
