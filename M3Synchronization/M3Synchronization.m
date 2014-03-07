@@ -483,12 +483,12 @@ success:^(AFHTTPRequestOperation *operation, id responseObject) {
         
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        NSLog(@"%@", [error localizedDescription]);
+//        NSLog(@"%@", [error localizedDescription]);
         [self handleError:error andDescription:nil];
     }];
     
-    NSLog(@"self.delegate = %@", self.delegate);
-    NSLog(@"self.delegate class = %@", [self.delegate class]);
+//    NSLog(@"self.delegate = %@", self.delegate);
+//    NSLog(@"self.delegate class = %@", [self.delegate class]);
 }
 
 
@@ -539,9 +539,9 @@ success:^(AFHTTPRequestOperation *operation, id responseObject) {
             
             
             for (NSString * field in fields) {
-                NSLog(@"==>%@", field);
+//                NSLog(@"==>%@", field);
                 if ([field rangeOfString:@"datetime"].location != NSNotFound) {
-                    NSLog(@"date detected value=%@", [format stringFromDate:[entity valueForKey:field]]);
+//                    NSLog(@"date detected value=%@", [format stringFromDate:[entity valueForKey:field]]);
                     [entityDictionary setValue:[format stringFromDate:[entity valueForKey:field]] forKey:field];
                     [entityDictionary setValue:@"mona" forKey:[NSString stringWithFormat:@"x_%@", field]];
                 } else {
@@ -551,7 +551,7 @@ success:^(AFHTTPRequestOperation *operation, id responseObject) {
                         NSLog(@"null detected");
                     } else {
                         [entityDictionary setValue:newValue forKey:field];
-                        NSLog(@"value OK");
+//                        NSLog(@"value OK");
                     }
                 }
             }
@@ -564,7 +564,7 @@ success:^(AFHTTPRequestOperation *operation, id responseObject) {
             
             NSString * jsonString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:entityDictionary options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
             
-            NSLog(@"%@", jsonString);
+//            NSLog(@"%@", jsonString);
             
             NSMutableDictionary *params = [self getAdditionalPostParams];
             [params setObject:jsonString forKey:@"json"];
